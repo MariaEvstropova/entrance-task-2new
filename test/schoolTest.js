@@ -34,25 +34,46 @@ describe('School', () => {
           });
     });
 
-    describe('[POST] /v1/schools', () => {
-      //Проверка вставки пустой школы (без данных)
-      it('it should not post empty school', (done) => {
-        let school = {};
+    //Проверка нахождения школы по id
+    it('it should return school by id', (done) => {
+      let school = new School({name: 'Школа мобильной разработки', number_of_students: 50});
+      school.save((err, res) => {
         chai.request(server)
-            .post('/v1/schools')
-            .send(school)
+            .get(`/v1/schools/${school.id}`)
             .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('object');
-              res.body.should.have.property('success', false);
-              res.body.should.have.property('error');
-              res.body.error.should.be.a('object');
-              res.body.error.should.have.property('errors');
-              res.body.error.errors.should.have.property('name');
-              res.body.error.errors.should.have.property('number_of_students');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('data');
+              res.body.data.should.be.a('object');
+              res.body.data.should.have.property('name', 'Школа мобильной разработки');
+              res.body.data.should.have.property('number_of_students', 50);
               done();
             });
       });
+    });
+
+  });
+
+
+  describe('[POST] /v1/schools', () => {
+    //Проверка вставки пустой школы (без данных)
+    it('it should not post empty school', (done) => {
+      let school = {};
+      chai.request(server)
+          .post('/v1/schools')
+          .send(school)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success', false);
+            res.body.should.have.property('error');
+            res.body.error.should.be.a('object');
+            res.body.error.should.have.property('errors');
+            res.body.error.errors.should.have.property('name');
+            res.body.error.errors.should.have.property('number_of_students');
+            done();
+          });
     });
 
     //Проверка вставки школы без названия
@@ -76,7 +97,7 @@ describe('School', () => {
 
     //Проверка вставки школы без числа учащихся
     it('it should not post school without name', (done) => {
-      let school = {name: "Школа мобильной разработки"};
+      let school = {name: 'Школа мобильной разработки'};
       chai.request(server)
           .post('/v1/schools')
           .send(school)
@@ -95,7 +116,7 @@ describe('School', () => {
 
     //Проверка вставки школы с валидными данными
     it('it should post school with valid params', (done) => {
-      let school = {name: "Школа мобильной разработки", students: 50};
+      let school = {name: 'Школа мобильной разработки', students: 50};
       chai.request(server)
           .post('/v1/schools')
           .send(school)
@@ -113,9 +134,9 @@ describe('School', () => {
 
     //Проверка вставки школы, уже существующей в базе данных
     it('it should not post school which already exists in database', (done) => {
-      let school = new School({name: "Школа мобильной разработки", number_of_students: 50});
+      let school = new School({name: 'Школа мобильной разработки', number_of_students: 50});
       school.save((err, res) => {
-        let school = {name: "Школа мобильной разработки", number_of_students: 50};
+        let school = {name: 'Школа мобильной разработки', number_of_students: 50};
         chai.request(server)
             .post('/v1/schools')
             .send(school)

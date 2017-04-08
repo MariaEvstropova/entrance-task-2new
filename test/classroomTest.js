@@ -33,6 +33,26 @@ describe('Classroom', () => {
             done();
           });
     });
+
+    //Проверка нахождения аудитории по id
+    it('it should return classroom by id', (done) => {
+      let classroom = new Classroom({name: 'Синий кит', volume: 100, location: 'Первый этаж'});
+      classroom.save((err, res) => {
+        chai.request(server)
+            .get(`/v1/classrooms/${classroom.id}`)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('data');
+              res.body.data.should.be.a('object');
+              res.body.data.should.have.property('name', 'Синий кит');
+              res.body.data.should.have.property('volume', 100);
+              res.body.data.should.have.property('location', 'Первый этаж');
+              done();
+            });
+      });
+    });
   });
 
   describe('[POST] /v1/classrooms', () => {
@@ -76,7 +96,7 @@ describe('Classroom', () => {
 
     //Проверка вставки аудитории без вместимости
     it('it should not post classroom without volume', (done) => {
-      let classroom = {name: "Синий кит", location: 'Первый этаж'};
+      let classroom = {name: 'Синий кит', location: 'Первый этаж'};
       chai.request(server)
           .post('/v1/classrooms')
           .send(classroom)
@@ -95,7 +115,7 @@ describe('Classroom', () => {
 
     //Проверка вставки аудитории с валидными данными
     it('it should post classroom with valid params', (done) => {
-      let classroom = {name: "Синий кит", volume: 100, location: 'Первый этаж'};
+      let classroom = {name: 'Синий кит', volume: 100, location: 'Первый этаж'};
       chai.request(server)
           .post('/v1/classrooms')
           .send(classroom)
@@ -114,9 +134,9 @@ describe('Classroom', () => {
 
     //Проверка вставки аудитории, уже существующей в базе данных
     it('it should not post classroom which already exists in database', (done) => {
-      let classroom = new Classroom({name: "Синий кит", volume: 100, location: 'Первый этаж'});
+      let classroom = new Classroom({name: 'Синий кит', volume: 100, location: 'Первый этаж'});
       classroom.save((err, res) => {
-        let classroom = {name: "Синий кит", volume: 100, location: 'Первый этаж'};
+        let classroom = {name: 'Синий кит', volume: 100, location: 'Первый этаж'};
         chai.request(server)
             .post('/v1/classrooms')
             .send(classroom)
@@ -129,6 +149,6 @@ describe('Classroom', () => {
             });
       });
     });
-    
+
   });
 });
