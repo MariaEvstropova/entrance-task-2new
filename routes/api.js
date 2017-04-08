@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/apiController');
 
 router.get('/', function(req, res) {
     res.json({ message: 'welcome to api' });
@@ -22,15 +23,12 @@ router.get('/lectures/classroom/:id',  function(req, res, next) {
 });
 
 //Печеречь всех лекций
-router.get('/lectures', function(req, res, next) {
-  console.log(req.query);
-  next();
-}, function (req, res) {
-  res.send('[GET] /lectures: Not implemented');
-});
+router.get('/lectures', controller.get_all_lectures);
+//Получить данные лекции по id
+router.get('/lectures/:id', controller.get_lecture_byId);
 //Создать новую лекцию
 router.post('/lectures', function (req, res) {
-  res.send('[POST] /lectures: Not implemented');
+  res.send('[POST] /lectures/: Not implemented');
 });
 //Изменить лекцию
 router.put('/lectures/:id', function (req, res) {
@@ -43,16 +41,14 @@ router.delete('/lectures/:id', function (req, res) {
 
 //Аудитории
 //Печеречь всех аудиторий
-router.get('/classrooms', function (req, res) {
-  res.send('[DELETE] /classrooms/:id: Not implemented');
-});
+router.get('/classrooms', controller.get_all_classrooms);
+//Получить данные аудитории по id
+router.get('/classrooms/:id', controller.get_classroom_byId);
 //Создать новую аудиторию
-router.post('/classrooms', function (req, res) {
-  res.send('[DELETE] /classrooms/:id: Not implemented');
-});
+router.post('/classrooms', controller.create_classroom);
 //Изменить аудиторию
 router.put('/classrooms/:id', function (req, res) {
-  res.send('[DELETE] /classrooms/:id: Not implemented');
+  res.send('[PUT] /classrooms/:id: Not implemented');
 });
 //Удалить аудиторию
 router.delete('/classrooms/:id', function (req, res) {
@@ -61,13 +57,11 @@ router.delete('/classrooms/:id', function (req, res) {
 
 //Школы
 //Печеречь всех школ
-router.get('/schools', function (req, res) {
-  res.send('[GET] /schools: Not implemented');
-});
+router.get('/schools', controller.get_all_schools);
+//Получить данные школы по id
+router.get('/schools/:id', controller.get_school_byId);
 //Создать новую школу
-router.post('/schools', function (req, res) {
-  res.send('[POST] /schools: Not implemented');
-});
+router.post('/schools', controller.create_school);
 //Изменить школу
 router.put('/schools/:id', function (req, res) {
   res.send('[PUT] /schools/:id: Not implemented');

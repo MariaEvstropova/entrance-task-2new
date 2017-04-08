@@ -41,7 +41,7 @@ var LectureSchema = new Schema(
       required: true,
       validate: {
         validator: function(name) {
-          var regexp = /([а-яё]+)\s([а-яё]+)/i;
+          var regexp = /[а-яё]+)/i;
           return regexp.test(name);
         },
         message: "{VALUE} is ot valid name"

@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
     "test": "./node_modules/.bin/mocha",
     "start": "NODE_ENV=dev && node server.js",
