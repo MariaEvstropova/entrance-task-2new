@@ -47,9 +47,7 @@ router.get('/classrooms/:id', controller.get_classroom_byId);
 //Создать новую аудиторию
 router.post('/classrooms', controller.create_classroom);
 //Изменить аудиторию
-router.put('/classrooms/:id', function (req, res) {
-  res.send('[PUT] /classrooms/:id: Not implemented');
-});
+router.put('/classrooms/:id', controller.edit_classroom);
 //Удалить аудиторию
 router.delete('/classrooms/:id', function (req, res) {
   res.send('[DELETE] /classrooms/:id: Not implemented');
@@ -63,9 +61,7 @@ router.get('/schools/:id', controller.get_school_byId);
 //Создать новую школу
 router.post('/schools', controller.create_school);
 //Изменить школу
-router.put('/schools/:id', function (req, res) {
-  res.send('[PUT] /schools/:id: Not implemented');
-});
+router.put('/schools/:id', controller.edit_school);
 //Удалить школу
 router.delete('/schools/:id', function (req, res) {
   res.send('[DELETE] /schools/:id: Not implemented');
