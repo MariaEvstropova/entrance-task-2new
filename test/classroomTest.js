@@ -151,7 +151,9 @@ describe('Classroom', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', 'Classroom with name "Синий кит" exists');
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', 'Classroom with name "Синий кит" exists');
               done();
             });
       });
@@ -170,7 +172,9 @@ describe('Classroom', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', `Your request doens't contain params for udate. Params available for update: name, volume, location.`);
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', `Your request doens't contain params for udate. Params available for update: name, volume, location.`);
               done();
             });
       });
@@ -185,7 +189,9 @@ describe('Classroom', () => {
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.should.have.property('success', false);
-            res.body.should.have.property('error', `Can't update, classrom doesn't exist`);
+            res.body.should.have.property('error');
+            res.body.error.should.be.a('object');
+            res.body.error.should.have.property('message', `Can't update, classrom doesn't exist`);
             done();
           });
     });
@@ -277,7 +283,9 @@ describe('Classroom', () => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
                 res.body.should.have.property('success', false);
-                res.body.should.have.property('error', `Can not delete classroom. Change lectures to be able to delete: ${lecture.name}`);
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', `Can not delete classroom. Change lectures to be able to delete: ${lecture.name}`);
                 done();
               });
         });
@@ -291,7 +299,9 @@ describe('Classroom', () => {
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.should.have.property('success', false);
-            res.body.should.have.property('error', 'No classroom with id = 58e87166c0b4b02f6877d70c in database');
+            res.body.should.have.property('error');
+            res.body.error.should.be.a('object');
+            res.body.error.should.have.property('message', 'No classroom with id = 58e87166c0b4b02f6877d70c in database');
             done();
           });
     });

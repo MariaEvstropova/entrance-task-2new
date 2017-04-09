@@ -38,23 +38,18 @@ module.exports.create_classroom = function(req, res) {
               success: true,
               message: data
             });
-          }, (error) => {
-            return res.json({
-              success: false,
-              error: error
-            });
           })
         );
       } else {
-        return res.json({
-          success: false,
-          error: `Classroom with name "${req.body.name}" exists`
-        });
+        throw new Error(`Classroom with name "${req.body.name}" exists`);
       }
-    }, (error) => {
+    }).catch((error) => {
       return res.json({
         success: false,
-        error: error
+        error: {
+          message: error.message,
+          errors: error.errors
+        }
       });
     })
   );
@@ -84,7 +79,9 @@ module.exports.edit_classroom = function(req, res) {
   if (!update.name && !update.volume && !update.location) {
     return res.json({
       success: false,
-      error: `Your request doens't contain params for udate. Params available for update: name, volume, location.`
+      error: {
+        message: `Your request doens't contain params for udate. Params available for update: name, volume, location.`
+      }
     });
   }
   return (
@@ -95,20 +92,20 @@ module.exports.edit_classroom = function(req, res) {
     ).exec()
     .then((data) => {
       if (!data) {
-        return res.json({
-          success: false,
-          error: `Can't update, classrom doesn't exist`
-        });
+        throw new Error(`Can't update, classrom doesn't exist`);
       } else {
         return res.json({
           success: true,
           message: data
         });
       }
-    }, (error) => {
+    }).catch((error) => {
       return res.json({
         success: false,
-        error: error
+        error: {
+          message: error.message,
+          errors: error.errors
+        }
       });
     })
   );
@@ -125,34 +122,26 @@ module.exports.delete_classroom = function(req, res) {
     Lecture.find({classroom: req.params.id}).exec()
     .then((data) => {
       if (data.length > 0) {
-        return res.json({
-          success: false,
-          error: `Can not delete classroom. Change lectures to be able to delete: ${data.map((item) => {return item.name})}`
-        });
+        throw new Error(`Can not delete classroom. Change lectures to be able to delete: ${data.map((item) => {return item.name})}`);
       } else {
-        Classroom.findOneAndRemove({_id: req.params.id}).exec()
+        return Classroom.findOneAndRemove({_id: req.params.id}).exec()
         .then((data) => {
           if (!data) {
-            return res.json({
-              success: false,
-              error: `No classroom with id = ${req.params.id} in database`
-            });
+            throw new Error(`No classroom with id = ${req.params.id} in database`);
           }
           return res.json({
             success: true,
             message: data
           });
-        }, (error) => {
-          return res.json({
-            success: false,
-            error: error
-          });
         });
       }
-    }, (error) => {
+    }).catch((error) => {
       return res.json({
         success: false,
-        error: error
+        error: {
+          message: error.message,
+          errors: error.errors
+        }
       });
     })
   );
