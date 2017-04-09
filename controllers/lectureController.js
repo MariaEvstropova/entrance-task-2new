@@ -117,7 +117,7 @@ module.exports.create_lecture = function(req, res) {
           error: `Too many students, volume of classroom = ${volume}`
         });
       }
-      
+
       return (
         //Проверим нет ли лекции с указанными данным в базе
         Lecture.find({name: req.body.lectureName}).exec().then((data) => {

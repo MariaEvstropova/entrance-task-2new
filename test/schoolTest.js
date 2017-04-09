@@ -96,7 +96,7 @@ describe('School', () => {
     });
 
     //Проверка вставки школы без числа учащихся
-    it('it should not post school without name', (done) => {
+    it('it should not post school without audience', (done) => {
       let school = {name: 'Школа мобильной разработки'};
       chai.request(server)
           .post('/v1/schools')
@@ -144,7 +144,9 @@ describe('School', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', 'School with name "Школа мобильной разработки" exists');
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', 'School with name "Школа мобильной разработки" exists');
               done();
             });
       });

@@ -35,23 +35,18 @@ module.exports.create_school = function(req, res) {
               success: true,
               message: data
             });
-          }, (error) => {
-            return res.json({
-              success: false,
-              error: error
-            });
           })
         );
       } else {
-        return res.json({
-          success: false,
-          error: `School with name "${req.body.name}" exists`
-        });
+          throw new Error(`School with name "${req.body.name}" exists`);
       }
-    }, (error) => {
+    }).catch((error) => {
       return res.json({
         success: false,
-        error: error
+        error: {
+          message: error.message,
+          errors: error.errors
+        }
       });
     })
   );
@@ -88,20 +83,17 @@ module.exports.edit_school = function(req, res) {
     ).exec()
     .then((data) => {
       if (!data) {
-        return res.json({
-          success: false,
-          error: `Can't update, school doesn't exist`
-        });
+        throw new Error(`Can't update, school doesn't exist`);
       } else {
         return res.json({
           success: true,
           message: data
         });
       }
-    }, (error) => {
+    }).catch((error) => {
       return res.json({
         success: false,
-        error: error
+        error: error.message
       });
     })
   );
