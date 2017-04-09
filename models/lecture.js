@@ -14,11 +14,11 @@ var LectureSchema = new Schema(
       required: true,
       validate: {
         //Валидатор для даты - лекция должна быть в будущем
-        //@TODO уточнить валидатор
         validator: function(date) {
           var now = Date.now();
           return (date - now) > 0;
-        }
+        },
+        message: "Date and time you've provided refer to the past"
       }
     },
     classroom: {
@@ -41,10 +41,10 @@ var LectureSchema = new Schema(
       required: true,
       validate: {
         validator: function(name) {
-          var regexp = /[а-яё]+)/i;
+          var regexp = /[а-яё]+/i;
           return regexp.test(name);
         },
-        message: "{VALUE} is ot valid name"
+        message: 'name value is not valid'
       }
     }
   }

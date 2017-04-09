@@ -249,4 +249,39 @@ describe('Classroom', () => {
       });
     });
   });
+
+  describe('[DELETE] /v1/classrooms/:id', () => {
+    it('it should not delete classroom if there are planned lections in it');
+    it('it should return error if classroom doesn\'t exist', (done) => {
+      chai.request(server)
+          .delete('/v1/classrooms/58e87166c0b4b02f6877d70c')
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success', false);
+            res.body.should.have.property('error', 'No classroom with id = 58e87166c0b4b02f6877d70c in database');
+            done();
+          });
+    });
+
+    it('it should delete classroom', (done) => {
+      let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
+      classroom.save((err, res) => {
+        chai.request(server)
+            .delete(`/v1/classrooms/${classroom.id}`)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Голубой щенок');
+              res.body.message.should.have.property('volume', 200);
+              res.body.message.should.have.property('location', 'Второй этаж');
+              res.body.message.should.have.property('_id', classroom.id);
+              done();
+            });
+      });
+    });
+  });
 });

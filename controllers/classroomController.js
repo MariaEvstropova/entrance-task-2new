@@ -4,6 +4,7 @@ mongoose.Promise = global.Promise;
 //Базовые операции одинаковые для всех моделей вынесли в отдельный файл
 const helper = require('./crudHelper');
 const Classroom = require('../models/classroom');
+const Lecture = require('../models/lecture');
 
 //Аудитории
 module.exports.get_all_classrooms = function(req, res) {
@@ -112,3 +113,47 @@ module.exports.edit_classroom = function(req, res) {
     })
   );
 };
+
+/*
+Перед тем как удалять аудиторию, необходимо удостовериться, что в ней не планируется занятий.
+Если в данной аудитории планируются лекции - возвращаем ошибку.
+
+@param {objectId} req.params.id
+*/
+module.exports.delete_classroom = function(req, res) {
+  return (
+    Lecture.find({classroom: req.params.id}).exec()
+    .then((data) => {
+      if (data.length > 0) {
+        return res.json({
+          success: false,
+          error: `Can not delete classroom. Change lectures to be able to delete: ${data}`
+        });
+      } else {
+        Classroom.findOneAndRemove({_id: req.params.id}).exec()
+        .then((data) => {
+          if (!data) {
+            return res.json({
+              success: false,
+              error: `No classroom with id = ${req.params.id} in database`
+            });
+          }
+          return res.json({
+            success: true,
+            message: data
+          });
+        }, (error) => {
+          return res.json({
+            success: false,
+            error: error
+          });
+        });
+      }
+    }, (error) => {
+      return res.json({
+        success: false,
+        error: error
+      });
+    })
+  );
+}

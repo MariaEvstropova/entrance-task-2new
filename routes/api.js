@@ -29,9 +29,7 @@ router.get('/lectures', lectureController.get_all_lectures);
 //Получить данные лекции по id
 router.get('/lectures/:id', lectureController.get_lecture_byId);
 //Создать новую лекцию
-router.post('/lectures', function (req, res) {
-  res.send('[POST] /lectures/: Not implemented');
-});
+router.post('/lectures', lectureController.create_lecture);
 //Изменить лекцию
 router.put('/lectures/:id', function (req, res) {
   res.send('[PUT] /lectures/:id: Not implemented');
@@ -51,9 +49,7 @@ router.post('/classrooms', classroomController.create_classroom);
 //Изменить аудиторию
 router.put('/classrooms/:id', classroomController.edit_classroom);
 //Удалить аудиторию
-router.delete('/classrooms/:id', function (req, res) {
-  res.send('[DELETE] /classrooms/:id: Not implemented');
-});
+router.delete('/classrooms/:id', classroomController.delete_classroom);
 
 //Школы
 //Печеречь всех школ
