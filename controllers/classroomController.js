@@ -127,7 +127,7 @@ module.exports.delete_classroom = function(req, res) {
       if (data.length > 0) {
         return res.json({
           success: false,
-          error: `Can not delete classroom. Change lectures to be able to delete: ${data}`
+          error: `Can not delete classroom. Change lectures to be able to delete: ${data.map((item) => {return item.name})}`
         });
       } else {
         Classroom.findOneAndRemove({_id: req.params.id}).exec()
