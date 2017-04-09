@@ -59,6 +59,7 @@ module.exports.create_lecture = function(req, res) {
       error: 'You request must contain schoolName'
     });
   }
+  //Проверить есть ли все указанные id в базе
   let promises = [];
   promises.push(Classroom.findOne({name: req.body.classroomName}).exec());
   req.body.schoolName.forEach((item) => {
@@ -67,6 +68,7 @@ module.exports.create_lecture = function(req, res) {
   return (
     Promise.all(promises)
     .then((data) => {
+      //Promise.all сохранят в ответе последовательность запросов => первым будет ответ для аудитории
       for (let i = 0; i < data.length; i++) {
         if (!data[i] && i == 0) {
           return res.json({
@@ -96,6 +98,7 @@ module.exports.create_lecture = function(req, res) {
         teacher: req.body.teacher
       };
       return (
+        //Проверим нет ли лекции с указанными данным в базе
         Lecture.find(lecture).exec().then((data) => {
           if (data.length !== 0) {
             return res.json({
@@ -103,6 +106,7 @@ module.exports.create_lecture = function(req, res) {
               error: 'Lecture with privided params is already exist'
             });
           } else {
+            //Если нет, то сохраняем
             let lecture = new Lecture({
               name: req.body.lectureName,
               date: date,
