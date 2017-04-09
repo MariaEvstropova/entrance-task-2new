@@ -29,11 +29,25 @@ module.exports.get_all_lectures = function(req, res) {
         });
 };
 module.exports.get_lecture_byId = function(req, res) {
-  return helper.get_item_byId(Lecture, req, res);
+  return Lecture.findOne({_id: req.params.id})
+        .populate({path: 'classroom', model: Classroom})
+        .populate({path: 'school', model: School})
+        .exec()
+        .then((data) => {
+          res.json({
+            success: true,
+            data: data
+          })
+        }, (error) => {
+          res.json({
+            success: false,
+            error: error
+          });
+        });
 };
 /*
 Перед тем как добавить лкцию нужно проверить:
-1) нет ли лекции с такими же параметрами в бд
+1) нет ли лекции с таким же названием в бд
 2) есть ли школа с указанным именем
 3) есть ли аудитория с указанным именем
 
@@ -82,28 +96,35 @@ module.exports.create_lecture = function(req, res) {
           });
         }
       }
-      date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`);
+      date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
       if (!date.isValid()) {
         return res.json({
           success: false,
-          error: 'There is issue with date and time you\'ve provided'
+          error: "There is issue with date and time you've provided"
         });
       }
       let id = data.map((item) => {return item['_id']});
-      let lecture = {
-        name: req.body.lectureName,
-        date: date,
-        classroom: id[0],
-        school: id.slice(1),
-        teacher: req.body.teacher
-      };
+
+      //Проверим вместимость аудитории
+      let volume = data[0]['volume'];
+      let audience = 0;
+      for (let i = 1; i < data.length; i++) {
+        audience += data[i]['number_of_students'];
+      }
+      if (volume < audience) {
+        return res.json({
+          success: false,
+          error: `Too many students, volume of classroom = ${volume}`
+        });
+      }
+      
       return (
         //Проверим нет ли лекции с указанными данным в базе
-        Lecture.find(lecture).exec().then((data) => {
+        Lecture.find({name: req.body.lectureName}).exec().then((data) => {
           if (data.length !== 0) {
             return res.json({
               success: false,
-              error: 'Lecture with privided params is already exist'
+              error: 'Lecture with privided name is already exist'
             });
           } else {
             //Если нет, то сохраняем
