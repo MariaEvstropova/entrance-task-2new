@@ -149,6 +149,80 @@ describe('School', () => {
             });
       });
     });
+  });
 
+  describe('[PUT] /v1/schools/:id', () => {
+    it('it should return warning if update info is empty', (done) => {
+      let school = new School({name: 'Школа разработки пароходов', students: 25});
+      school.save((err, res) => {
+        let update = {};
+        chai.request(server)
+            .put(`/v1/schools/${school.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', false);
+              res.body.should.have.property('error', `Your request doens't contain params for udate. Params available for update: name, students.`);
+              done();
+            });
+      });
+    });
+
+    it('it should return warning if there is no school with given id in database', (done) => {
+      let update = {name: 'Школа разработки пароходов', students: 25};
+      chai.request(server)
+          .put('/v1/schools/58e87166c0b4b02f6877d70c')
+          .send(update)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success', false);
+            res.body.should.have.property('error', `Can't update, school doesn't exist`);
+            done();
+          });
+    });
+
+    it('it should change only name', (done) => {
+      let school = new School({name: 'Школа разработки пароходов', number_of_students: 25});
+      school.save((err, res) => {
+        let update = {name: 'Школа разработки интерфейсов'};
+        chai.request(server)
+            .put(`/v1/schools/${school.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Школа разработки интерфейсов');
+              res.body.message.should.have.property('number_of_students', 25);
+              res.body.message.should.have.property('_id', school.id);
+              done();
+            });
+      });
+    });
+
+    it('it should change only number of students', (done) => {
+      let school = new School({name: 'Школа разработки пароходов', number_of_students: 25});
+      school.save((err, res) => {
+        let update = {students: 30};
+        chai.request(server)
+            .put(`/v1/schools/${school.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Школа разработки пароходов');
+              res.body.message.should.have.property('number_of_students', 30);
+              res.body.message.should.have.property('_id', school.id);
+              done();
+            });
+      });
+    });
   });
 });

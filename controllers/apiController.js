@@ -175,7 +175,7 @@ module.exports.edit_school = function(req, res) {
   if (req.body.students) {
     update.number_of_students = req.body.students;
   }
-  if (!update.name && !update.students) {
+  if (!update.name && !update.number_of_students) {
     return res.json({
       success: false,
       error: `Your request doens't contain params for udate. Params available for update: name, students.`

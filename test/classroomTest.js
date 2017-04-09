@@ -149,6 +149,104 @@ describe('Classroom', () => {
             });
       });
     });
+  });
 
+  describe('[PUT] /v1/classrooms/:id', () => {
+    it('it should return warning if update info is empty', (done) => {
+      let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
+      classroom.save((err, res) => {
+        let update = {};
+        chai.request(server)
+            .put(`/v1/classrooms/${classroom.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', false);
+              res.body.should.have.property('error', `Your request doens't contain params for udate. Params available for update: name, volume, location.`);
+              done();
+            });
+      });
+    });
+
+    it('it should return warning if there is no classroom with given id in database', (done) => {
+      let update = {name: 'Голубой щенок', volume: 200, location: 'Второй этаж'};
+      chai.request(server)
+          .put('/v1/classrooms/58e87166c0b4b02f6877d70c')
+          .send(update)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success', false);
+            res.body.should.have.property('error', `Can't update, classrom doesn't exist`);
+            done();
+          });
+    });
+
+    it('it should change only name', (done) => {
+      let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
+      classroom.save((err, res) => {
+        let update = {name: 'Розовый слон'};
+        chai.request(server)
+            .put(`/v1/classrooms/${classroom.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Розовый слон');
+              res.body.message.should.have.property('volume', 200);
+              res.body.message.should.have.property('location', 'Второй этаж');
+              res.body.message.should.have.property('_id', classroom.id);
+              done();
+            });
+      });
+    });
+
+    it('it should change only volume', (done) => {
+      let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
+      classroom.save((err, res) => {
+        let update = {volume: 300};
+        chai.request(server)
+            .put(`/v1/classrooms/${classroom.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Голубой щенок');
+              res.body.message.should.have.property('volume', 300);
+              res.body.message.should.have.property('location', 'Второй этаж');
+              res.body.message.should.have.property('_id', classroom.id);
+              done();
+            });
+      });
+    });
+
+    it('it should change only name', (done) => {
+      let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
+      classroom.save((err, res) => {
+        let update = {location: 'Чердак'};
+        chai.request(server)
+            .put(`/v1/classrooms/${classroom.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', true);
+              res.body.should.have.property('message');
+              res.body.message.should.be.a('object');
+              res.body.message.should.have.property('name', 'Голубой щенок');
+              res.body.message.should.have.property('volume', 200);
+              res.body.message.should.have.property('location', 'Чердак');
+              res.body.message.should.have.property('_id', classroom.id);
+              done();
+            });
+      });
+    });
   });
 });
