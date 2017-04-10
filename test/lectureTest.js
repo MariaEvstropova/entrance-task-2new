@@ -97,7 +97,9 @@ describe('Lecture', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', 'You request must contain classroomName');
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', 'You request must contain classroomName');
               done();
             });
       });
@@ -117,7 +119,9 @@ describe('Lecture', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', 'You request must contain schoolName');
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', 'You request must contain schoolName');
               done();
             });
       });
@@ -142,7 +146,9 @@ describe('Lecture', () => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
                 res.body.should.have.property('success', false);
-                res.body.should.have.property('error', "There is issue with date and time you've provided");
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', "There is issue with date and time you've provided");
                 done();
               });
         });
@@ -171,7 +177,9 @@ describe('Lecture', () => {
                   res.should.have.status(200);
                   res.body.should.be.a('object');
                   res.body.should.have.property('success', false);
-                  res.body.should.have.property('error', 'Lecture with privided name is already exist');
+                  res.body.should.have.property('error');
+                  res.body.error.should.be.a('object');
+                  res.body.error.should.have.property('message', 'Lecture with privided name is already exist');
                   done();
                 });
             });
@@ -199,7 +207,9 @@ describe('Lecture', () => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
                 res.body.should.have.property('success', false);
-                res.body.should.have.property('error', 'Too many students, volume of classroom = 100');
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', 'Too many students, volume of classroom = 100');
                 done();
               });
         });

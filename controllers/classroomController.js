@@ -31,19 +31,19 @@ module.exports.create_classroom = function(req, res) {
           location: req.body.location,
           volume: req.body.volume
         });
-
-        return (
-          classroom.save().then((data) => {
-            return res.json({
-              success: true,
-              message: data
-            });
-          })
-        );
+        
+        return classroom.save();
       } else {
         throw new Error(`Classroom with name "${req.body.name}" exists`);
       }
-    }).catch((error) => {
+    })
+    .then((data) => {
+      return res.json({
+        success: true,
+        message: data
+      });
+    })
+    .catch((error) => {
       return res.json({
         success: false,
         error: {

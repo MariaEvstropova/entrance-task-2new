@@ -28,19 +28,18 @@ module.exports.create_school = function(req, res) {
           name: req.body.name,
           number_of_students: req.body.students
         });
-
-        return (
-          school.save().then((data) => {
-            return res.json({
-              success: true,
-              message: data
-            });
-          })
-        );
+        return school.save();
       } else {
-          throw new Error(`School with name "${req.body.name}" exists`);
+        throw new Error(`School with name "${req.body.name}" exists`);
       }
-    }).catch((error) => {
+    })
+    .then((data) => {
+      return res.json({
+        success: true,
+        message: data
+      });
+    })
+    .catch((error) => {
       return res.json({
         success: false,
         error: {

@@ -21,10 +21,13 @@ module.exports.get_all_lectures = function(req, res) {
             success: true,
             data: data
           })
-        }, (error) => {
-          res.json({
+        }).catch((error) => {
+          return res.json({
             success: false,
-            error: error
+            error: {
+              message: error.message,
+              errors: error.errors
+            }
           });
         });
 };
@@ -38,10 +41,13 @@ module.exports.get_lecture_byId = function(req, res) {
             success: true,
             data: data
           })
-        }, (error) => {
-          res.json({
+        }).catch((error) => {
+          return res.json({
             success: false,
-            error: error
+            error: {
+              message: error.message,
+              errors: error.errors
+            }
           });
         });
 };
@@ -63,107 +69,85 @@ module.exports.create_lecture = function(req, res) {
   if (!req.body.classroomName) {
     return res.json({
       success: false,
-      error: 'You request must contain classroomName'
+      error: {
+        message :'You request must contain classroomName'
+      }
     });
   }
   //Для поиска школы необходимо её имя, если имени нет - вернем ошибку
   if (!req.body.schoolName || req.body.schoolName.length == 0) {
     return res.json({
       success: false,
-      error: 'You request must contain schoolName'
+      error: {
+        message :'You request must contain schoolName'
+      }
     });
   }
-  //Проверить есть ли все указанные id в базе
-  let promises = [];
-  promises.push(Classroom.findOne({name: req.body.classroomName}).exec());
-  req.body.schoolName.forEach((item) => {
-    promises.push(School.findOne({name: item}).exec());
+  //Проверим дату
+  date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
+  if (!date.isValid()) {
+    return res.json({
+      success: false,
+      error: {
+        message :"There is issue with date and time you've provided"
+      }
+    });
+  }
+  //Проверим нет ли леции с таким нзванием в базе данных
+  Lecture.find({name: req.body.lectureName}).exec()
+  .then((data) => {
+    if (data.length !== 0) {
+      throw new Error('Lecture with privided name is already exist');
+    }
+    //Проверить есть ли все указанные id для школа и аудитории в базе данных
+    let promises = [];
+    promises.push(Classroom.findOne({name: req.body.classroomName}).exec());
+    req.body.schoolName.forEach((item) => {
+      promises.push(School.findOne({name: item}).exec());
+    });
+    return Promise.all(promises)
+  })
+  .then((data) => {
+    //Promise.all сохранят в ответе последовательность запросов => первым будет ответ для аудитории
+    for (let i = 0; i < data.length; i++) {
+      if (!data[i] && i == 0) {
+        throw new Error(`There is no classroom with name ${req.body.classroomName} in database`);
+      } else if (!data[i]) {
+        throw new Error(`There is no school with name ${req.body.schoolName[i-1]} in database`);
+      }
+    }
+    let id = data.map((item) => {return item['_id']});
+    //Проверим вместимость аудитории
+    let volume = data[0]['volume'];
+    let audience = 0;
+    for (let i = 1; i < data.length; i++) {
+      audience += data[i]['number_of_students'];
+    }
+    if (volume < audience) {
+      throw new Error(`Too many students, volume of classroom = ${volume}`);
+    }
+    let lecture = new Lecture({
+      name: req.body.lectureName,
+      date: date,
+      classroom: id[0],
+      school: id.slice(1),
+      teacher: req.body.teacher
+    });
+    return lecture.save();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
   });
-  return (
-    Promise.all(promises)
-    .then((data) => {
-      //Promise.all сохранят в ответе последовательность запросов => первым будет ответ для аудитории
-      for (let i = 0; i < data.length; i++) {
-        if (!data[i] && i == 0) {
-          return res.json({
-            success: false,
-            error: `There is no classroom with name ${req.body.classroomName} in database`
-          });
-        } else if (!data[i]) {
-          return res.json({
-            success: false,
-            error: `There is no school with name ${req.body.schoolName[i-1]} in database`
-          });
-        }
-      }
-      date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
-      if (!date.isValid()) {
-        return res.json({
-          success: false,
-          error: "There is issue with date and time you've provided"
-        });
-      }
-      let id = data.map((item) => {return item['_id']});
-
-      //Проверим вместимость аудитории
-      let volume = data[0]['volume'];
-      let audience = 0;
-      for (let i = 1; i < data.length; i++) {
-        audience += data[i]['number_of_students'];
-      }
-      if (volume < audience) {
-        return res.json({
-          success: false,
-          error: `Too many students, volume of classroom = ${volume}`
-        });
-      }
-
-      return (
-        //Проверим нет ли лекции с указанными данным в базе
-        Lecture.find({name: req.body.lectureName}).exec().then((data) => {
-          if (data.length !== 0) {
-            return res.json({
-              success: false,
-              error: 'Lecture with privided name is already exist'
-            });
-          } else {
-            //Если нет, то сохраняем
-            let lecture = new Lecture({
-              name: req.body.lectureName,
-              date: date,
-              classroom: id[0],
-              school: id.slice(1),
-              teacher: req.body.teacher
-            });
-            lecture.save().then((data) => {
-              return res.json({
-                success: true,
-                message: data
-              });
-            }, (error) => {
-              return res.json({
-                success: false,
-                error: error
-              });
-            });
-          }
-        }, (error) => {
-          return res.json({
-            success: false,
-            error: error
-          });
-        })
-      );
-    }, (error) => {
-      return res.json({
-        success: false,
-        error: error
-      });
-    }, (error) => {
-      return res.json({
-        success: false,
-        error: error
-      });
-    })
-  );
 };
