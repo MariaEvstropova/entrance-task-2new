@@ -84,7 +84,7 @@ module.exports.create_lecture = function(req, res) {
     });
   }
   //Проверим дату
-  date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
+  let date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
   if (!date.isValid()) {
     return res.json({
       success: false,
@@ -97,7 +97,7 @@ module.exports.create_lecture = function(req, res) {
   Lecture.find({name: req.body.lectureName}).exec()
   .then((data) => {
     if (data.length !== 0) {
-      throw new Error('Lecture with privided name is already exist');
+      throw new Error('Lecture with provided name is already exist');
     }
     //Проверить есть ли все указанные id для школа и аудитории в базе данных
     let promises = [];
@@ -150,4 +150,72 @@ module.exports.create_lecture = function(req, res) {
       }
     });
   });
+};
+
+checkNameAvailable = function(name) {
+  Lecture
+      .find({name: name}).exec()
+      .then((data) => {
+        //Если уже есть результаты поиска, значит имя занято
+        if (data.length > 0) {
+          throw new Error('Lecture with provided name is already exist');
+        }
+        return {
+          success: true
+        }
+      });
+};
+
+checkClassroomAvailable = function(classroom, date) {
+  Lecture
+      .find({
+        classroom: classroom,
+        date: {
+          $gd: moment(date).subtract(3, 'hours'),
+          $lt: moment(date).add(3, 'hours')
+        }
+      }).exec()
+      .then((data) => {
+        if (data.length > 0) {
+          throw new Error(`Classroom id = ${classroom} is not available at time = ${date}`);
+        }
+        return {
+          success: true
+        }
+      });
+};
+
+checkSchoolAvailable = function(school, date) {
+  Lecture
+      .find({
+        school: school,
+        date: {
+          $gd: moment(date).subtract(3, 'hours'),
+          $lt: moment(date).add(3, 'hours')
+        }
+      }).exec()
+      .then((data) => {
+        if (data.length > 0) {
+          throw new Error(`School id = ${school} is not available at time = ${date}`);
+        }
+        return {
+          success: true
+        }
+      });
+};
+
+checkAllSchoolsAvailable = function(schoolsArray, date) {
+  let promises = [];
+  schoolsArray.forEach((school) => {
+    promises.push(checkSchoolAvailable(school, date));
+  });
+  Promise.all(promises).then(() => {
+    return {
+      success: true
+    }
+  });
+};
+
+checkSpaceEnough = function(classroomId, schoolsId) {
+
 };
