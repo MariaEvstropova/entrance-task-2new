@@ -217,5 +217,24 @@ checkAllSchoolsAvailable = function(schoolsArray, date) {
 };
 
 checkSpaceEnough = function(classroomId, schoolsId) {
+  let promises = [];
+  schoolsId.forEach((schoolId) => {
+    promises.push(School.findOne({_id: schoolId}).exec());
+  });
+  Classroom.findOne({_id: classroomId}).exec().then((classroom) => {
+    let volume = classroom.volume;
+    let audience = 0;
+    return Promise.all(promises).then((schools) => {
+      schools.forEach((school) => {
+        audience = audience + school.number_of_students;
+      });
+      if (volume < audience) {
+        throw new Error(`Too many students, volume of classroom = ${volume}`);
+      }
+      return {
+        success: true
+      }
+    });
+  });
 
 };
