@@ -51,89 +51,48 @@ module.exports.get_lecture_byId = function(req, res) {
           });
         });
 };
-/*
-Перед тем как добавить лкцию нужно проверить:
-1) нет ли лекции с таким же названием в бд
-2) есть ли школа с указанным именем
-3) есть ли аудитория с указанным именем
 
-@param {String} req.body.lectureName
-@param {String} req.body.lectureDate - дата ожидается в формате: гггг-мм-дд
-@param {String} req.body.lectureTime - время ожидается в формате чч(24 часа)-мм
-@param {String} req.body.classroomName
-@param {String} req.body.schoolName[]
+/*
+@param {String} req.body.name
+@param {String} req.body.date - дата ожидается в формате: гггг-мм-д чч-мм
+@param {String} req.body.classroom - id
+@param {String} req.body.schools[] - id[]
 @param {String} req.body.teacher
 */
 module.exports.create_lecture = function(req, res) {
-  //Для поиска аудитории необходимо её имя, если имени нет - вернем ошибку
-  if (!req.body.classroomName) {
-    return res.json({
-      success: false,
-      error: {
-        message :'You request must contain classroomName'
-      }
-    });
-  }
-  //Для поиска школы необходимо её имя, если имени нет - вернем ошибку
-  if (!req.body.schoolName || req.body.schoolName.length == 0) {
-    return res.json({
-      success: false,
-      error: {
-        message :'You request must contain schoolName'
-      }
-    });
-  }
-  //Проверим дату
-  let date = moment(`${req.body.lectureDate} ${req.body.lectureTime}:00`, moment.ISO_8601);
-  if (!date.isValid()) {
-    return res.json({
-      success: false,
-      error: {
-        message :"There is issue with date and time you've provided"
-      }
-    });
-  }
-  //Проверим нет ли леции с таким нзванием в базе данных
-  Lecture.find({name: req.body.lectureName}).exec()
-  .then((data) => {
-    if (data.length !== 0) {
-      throw new Error('Lecture with provided name is already exist');
-    }
-    //Проверить есть ли все указанные id для школа и аудитории в базе данных
-    let promises = [];
-    promises.push(Classroom.findOne({name: req.body.classroomName}).exec());
-    req.body.schoolName.forEach((item) => {
-      promises.push(School.findOne({name: item}).exec());
-    });
-    return Promise.all(promises)
+  let date = moment(req.body.date, moment.ISO_8601);
+  return checkPostParams(req.body.classroom, req.body.schools)
+  .then(() => {
+    return checkDateisValid(req.body.date)
+  }).then(() => {
+    return checkNameAvailable(req.body.name);
+  })
+  .then(() => {
+    return checkClassroomExist(req.body.classroom);
+  })
+  .then(() => {
+    return checkAllSchoolsExist(req.body.schools);
+  })
+  .then(() => {
+    return checkClassroomAvailable(req.body.classroom, date);
+  })
+  .then(() => {
+    return checkAllSchoolsAvailable(req.body.schools, date);
+  })
+  .then(() => {
+    return checkSpaceEnough(req.body.classroom, req.body.schools);
   })
   .then((data) => {
-    //Promise.all сохранят в ответе последовательность запросов => первым будет ответ для аудитории
-    for (let i = 0; i < data.length; i++) {
-      if (!data[i] && i == 0) {
-        throw new Error(`There is no classroom with name ${req.body.classroomName} in database`);
-      } else if (!data[i]) {
-        throw new Error(`There is no school with name ${req.body.schoolName[i-1]} in database`);
-      }
+    if (data.success) {
+      let lecture = new Lecture({
+        name: req.body.name,
+        date: date,
+        classroom: req.body.classroom,
+        school: req.body.schools,
+        teacher: req.body.teacher
+      });
+      return lecture.save();
     }
-    let id = data.map((item) => {return item['_id']});
-    //Проверим вместимость аудитории
-    let volume = data[0]['volume'];
-    let audience = 0;
-    for (let i = 1; i < data.length; i++) {
-      audience += data[i]['number_of_students'];
-    }
-    if (volume < audience) {
-      throw new Error(`Too many students, volume of classroom = ${volume}`);
-    }
-    let lecture = new Lecture({
-      name: req.body.lectureName,
-      date: date,
-      classroom: id[0],
-      school: id.slice(1),
-      teacher: req.body.teacher
-    });
-    return lecture.save();
   })
   .then((data) => {
     return res.json({
@@ -153,7 +112,7 @@ module.exports.create_lecture = function(req, res) {
 };
 
 checkNameAvailable = function(name) {
-  Lecture
+  return Lecture
       .find({name: name}).exec()
       .then((data) => {
         //Если уже есть результаты поиска, значит имя занято
@@ -167,11 +126,11 @@ checkNameAvailable = function(name) {
 };
 
 checkClassroomAvailable = function(classroom, date) {
-  Lecture
+  return Lecture
       .find({
         classroom: classroom,
         date: {
-          $gd: moment(date).subtract(3, 'hours'),
+          $gt: moment(date).subtract(3, 'hours'),
           $lt: moment(date).add(3, 'hours')
         }
       }).exec()
@@ -186,11 +145,11 @@ checkClassroomAvailable = function(classroom, date) {
 };
 
 checkSchoolAvailable = function(school, date) {
-  Lecture
+  return Lecture
       .find({
         school: school,
         date: {
-          $gd: moment(date).subtract(3, 'hours'),
+          $gt: moment(date).subtract(3, 'hours'),
           $lt: moment(date).add(3, 'hours')
         }
       }).exec()
@@ -209,7 +168,7 @@ checkAllSchoolsAvailable = function(schoolsArray, date) {
   schoolsArray.forEach((school) => {
     promises.push(checkSchoolAvailable(school, date));
   });
-  Promise.all(promises).then(() => {
+  return Promise.all(promises).then(() => {
     return {
       success: true
     }
@@ -218,23 +177,117 @@ checkAllSchoolsAvailable = function(schoolsArray, date) {
 
 checkSpaceEnough = function(classroomId, schoolsId) {
   let promises = [];
+  let volume = 0;
+  let audience = 0;
   schoolsId.forEach((schoolId) => {
     promises.push(School.findOne({_id: schoolId}).exec());
   });
-  Classroom.findOne({_id: classroomId}).exec().then((classroom) => {
-    let volume = classroom.volume;
-    let audience = 0;
-    return Promise.all(promises).then((schools) => {
-      schools.forEach((school) => {
-        audience = audience + school.number_of_students;
+  return Classroom.findOne({_id: classroomId}).exec()
+  .then((classroom) => {
+    volume = classroom.volume;
+    return Promise.all(promises);
+  })
+  .then((schools) => {
+    schools.forEach((school) => {
+      audience = audience + school.number_of_students;
+    });
+    if (volume < audience) {
+      throw new Error(`Too many students, volume of classroom = ${volume}`);
+    }
+    return {
+      success: true
+    }
+  });
+};
+
+checkPostParams = function(classroom, schools) {
+  return new Promise((resolve, reject) => {
+    if (!classroom) {
+      reject({
+        message: 'Classroom id is incorrect'
       });
-      if (volume < audience) {
-        throw new Error(`Too many students, volume of classroom = ${volume}`);
-      }
-      return {
-        success: true
+    }
+    schools.forEach((school, index) => {
+      if (!school) {
+        reject({
+          message: `School id is incorrect, index = ${index}`
+        });
       }
     });
+    if (!checkShoolIdUnique(schools)) {
+      reject({
+        message: 'Schools in array must be unique'
+      });
+    }
+    resolve({
+      success: true
+    })
   });
+};
 
+checkDateisValid = function(lectureDate) {
+  return new Promise((resolve, reject) => {
+    let date = moment(lectureDate, moment.ISO_8601);
+    if (!date.isValid()) {
+      reject({
+        message :"There is issue with date and time you've provided"
+      });
+    }
+    resolve(
+      {
+        success: true,
+        date: date
+      }
+    );
+  });
+};
+
+checkClassroomExist = function(id) {
+  return helper.checkItemExist(Classroom, id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`There is no classroom with id = ${id} in database`);
+    }
+    return {
+      success: true
+    };
+  });
+};
+
+checkSchoolExist = function(id) {
+  return helper.checkItemExist(School, id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`There is no school with id = ${id} in database`);
+    }
+    return {
+      success: true
+    };
+  });
+};
+
+checkAllSchoolsExist = function(schoolsId) {
+  let promises = [];
+  schoolsId.forEach((id) => {
+    promises.push(checkSchoolExist(id));
+  });
+  return Promise.all(promises).then(() => {
+    return {
+      success: true
+    }
+  });
+};
+
+checkShoolIdUnique = function(schools) {
+  let unique = true;
+  for (let i = 0; i < schools.length - 1; i++) {
+    for (let j = i + 1; j < schools.length; j++) {
+      if (schools[i] == schools[j]) {
+        unique = false;
+      }
+      if (!unique) {break;}
+    }
+    if (!unique) {break;}
+  }
+  return unique;
 };
