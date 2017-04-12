@@ -82,12 +82,11 @@ describe('Lecture', () => {
     });
 
     describe('[POST] /v1/lectures', () => {
-      it('it should not post lecture without classroomName', (done) => {
+      it('it should not post lecture without classroom', (done) => {
         let lecture = {
-          lectureName: 'Распределенные вычисления',
-          lectureDate: '2017-05-10',
-          lectureTime: '19:00',
-          schoolName: ['Школа разработки интерфейсов'],
+          name: 'Распределенные вычисления',
+          date: '2017-05-10 19:00',
+          school: ['58ea7b6cb016f20a09e28215'],
           teacher: 'Васечкин'
         };
         chai.request(server)
@@ -99,17 +98,16 @@ describe('Lecture', () => {
               res.body.should.have.property('success', false);
               res.body.should.have.property('error');
               res.body.error.should.be.a('object');
-              res.body.error.should.have.property('message', 'You request must contain classroomName');
+              res.body.error.should.have.property('message', 'Classroom id is incorrect');
               done();
             });
       });
 
-      it('it should not post lecture without schoolName', (done) => {
+      it('it should not post lecture without school', (done) => {
         let lecture = {
-          lectureName: 'Распределенные вычисления',
-          lectureDate: '2017-05-10',
-          lectureTime: '19:00',
-          classroomName: 'Синий кит',
+          name: 'Распределенные вычисления',
+          date: '2017-05-10 19:00',
+          classroom: '58ea7b6cb016f20a09e28215',
           teacher: 'Васечкин'
         };
         chai.request(server)
@@ -121,7 +119,7 @@ describe('Lecture', () => {
               res.body.should.have.property('success', false);
               res.body.should.have.property('error');
               res.body.error.should.be.a('object');
-              res.body.error.should.have.property('message', 'You request must contain schoolName');
+              res.body.error.should.have.property('message', 'Schools array is empty');
               done();
             });
       });
@@ -132,11 +130,10 @@ describe('Lecture', () => {
         let promises = [classroom.save(), school.save()];
         Promise.all(promises).then((data) => {
           let lecture = {
-            lectureName: 'Распределенные вычисления',
-            lectureDate: '2017-05-0',
-            lectureTime: '19:00',
-            classroomName: 'Синий кит',
-            schoolName: ['Школа мобильной разработки'],
+            name: 'Распределенные вычисления',
+            date: '2017-05-0 19:00',
+            classroom: classroom.id,
+            schools: [school.id],
             teacher: 'Васечкин'
           };
           chai.request(server)
@@ -148,7 +145,7 @@ describe('Lecture', () => {
                 res.body.should.have.property('success', false);
                 res.body.should.have.property('error');
                 res.body.error.should.be.a('object');
-                res.body.error.should.have.property('message', "There is issue with date and time you've provided");
+                res.body.error.should.have.property('message', 'There is issue with date and time you\'ve provided');
                 done();
               });
         });
@@ -156,18 +153,17 @@ describe('Lecture', () => {
         it('it should not post lecture if it exists', (done) => {
           let lecture = new Lecture({
             name: 'Распределенные вычисления',
-            date: new Date('2017-07-03 19:00'),
-            classroom: data[0]['_id'],
-            school: [data[1]['_id']],
+            date: '2017-05-10 19:00',
+            classroom: classroom.id,
+            schools: [school.id],
             teacher: 'Васечкин'
           });
           lecture.save((err, res) => {
             let lecture = {
-              lectureName: 'Распределенные вычисления',
-              lectureDate: '2017-05-05',
-              lectureTime: '19:00',
-              classroomName: 'Синий кит',
-              schoolName: ['Школа мобильной разработки'],
+              name: 'Распределенные вычисления',
+              date: '2017-05-10 19:00',
+              classroom: classroom.id,
+              schools: [school.id],
               teacher: 'Васечкин'
             };
             chai.request(server)
@@ -193,11 +189,10 @@ describe('Lecture', () => {
         let promises = [classroom.save(), school1.save(), school2.save()];
         Promise.all(promises).then((data) => {
           let lecture = {
-            lectureName: 'Распределенные вычисления',
-            lectureDate: '2017-05-05',
-            lectureTime: '19:00',
-            classroomName: 'Синий кит',
-            schoolName: ['Школа мобильной разработки', 'Школа мобильного дизайна'],
+            name: 'Распределенные вычисления',
+            date: '2017-05-10 19:00',
+            classroom: classroom.id,
+            schools: [school1.id, school2.id],
             teacher: 'Васечкин'
           };
           chai.request(server)
@@ -221,11 +216,10 @@ describe('Lecture', () => {
         let promises = [classroom.save(), school.save()];
         Promise.all(promises).then((data) => {
           let lecture = {
-            lectureName: 'Распределенные вычисления',
-            lectureDate: '2017-05-05',
-            lectureTime: '19:00',
-            classroomName: 'Синий кит',
-            schoolName: ['Школа мобильной разработки'],
+            name: 'Распределенные вычисления',
+            date: '2017-05-05 19:00',
+            classroom: classroom.id,
+            schools: [school.id],
             teacher: 'Васечкин'
           };
           chai.request(server)

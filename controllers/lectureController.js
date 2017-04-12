@@ -207,13 +207,11 @@ checkPostParams = function(classroom, schools) {
         message: 'Classroom id is incorrect'
       });
     }
-    schools.forEach((school, index) => {
-      if (!school) {
-        reject({
-          message: `School id is incorrect, index = ${index}`
-        });
-      }
-    });
+    if (!schools || schools.length == 0) {
+      reject({
+        message: 'Schools array is empty'
+      });
+    }
     if (!checkShoolIdUnique(schools)) {
       reject({
         message: 'Schools in array must be unique'
@@ -230,7 +228,7 @@ checkDateisValid = function(lectureDate) {
     let date = moment(lectureDate, moment.ISO_8601);
     if (!date.isValid()) {
       reject({
-        message :"There is issue with date and time you've provided"
+        message :'There is issue with date and time you\'ve provided'
       });
     }
     resolve(
