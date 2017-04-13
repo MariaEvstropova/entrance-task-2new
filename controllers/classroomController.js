@@ -87,7 +87,10 @@ module.exports.edit_classroom = function(req, res) {
   return checkLecturesInClassroom(req.params.id)
   .then((data) => {
     if (data.success && update.volume) {
-      return checkAllLecturesSpaceEnough(data.lectures, update.volume);
+      let extraParams = {
+        testVolume: update.volume
+      }
+      return helper.checkAllLecturesSpaceEnough(data.lectures, extraParams);
     }
     return {
       sucess: true
@@ -172,16 +175,3 @@ checkLecturesInClassroom = function(id) {
     }
   })
 };
-
-checkAllLecturesSpaceEnough = function(lectures, testVolume) {
-  let promises = [];
-  lectures.forEach((lecture) => {
-    promises.push(helper.checkSpaceEnough(lecture.classroom, lecture.school, testVolume));
-  });
-  return Promise.all(promises)
-  .then((data) => {
-    return {
-      success: true
-    }
-  });
-}

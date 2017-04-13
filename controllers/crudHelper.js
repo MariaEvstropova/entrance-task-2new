@@ -52,11 +52,21 @@ module.exports.checkItemExist = function(model, id) {
   });
 };
 
-module.exports.checkSpaceEnough = function(classroomId, schoolsId, testVolume) {
+module.exports.checkSpaceEnough = function(classroomId, schoolsId, extraParams) {
   let promises = [];
   let classroomVolume = 0;
   let volume = 0;
   let audience = 0;
+
+  let testVolume;
+  let testStudent;
+  let testSchoolId;
+  if (extraParams) {
+    testVolume = extraParams.testVolume;
+    testStudent = extraParams.testStudent;
+    testSchoolId = extraParams.schoolId;
+  }
+
   schoolsId.forEach((schoolId) => {
     promises.push(School.findOne({_id: schoolId}).exec());
   });
@@ -68,11 +78,31 @@ module.exports.checkSpaceEnough = function(classroomId, schoolsId, testVolume) {
   })
   .then((schools) => {
     schools.forEach((school) => {
-      audience = audience + school.number_of_students;
+      if (!!testSchoolId && !!testStudent && school.id == testSchoolId) {
+        audience = audience + testStudent;
+      } else {
+        audience = audience + school.number_of_students;
+      }
     });
     if (volume < audience) {
-      throw new Error(`Too many students, volume of classroom = ${classroomVolume}${testVolume ? `, volume to test = ${testVolume}` : ''}`);
+      let message = `Too many students, volume of classroom = ${classroomVolume}`;
+      let messageVolume = testVolume ? `, volume to test = ${testVolume}` : '';
+      let messageStudents = testStudent ? `, audience = ${audience}, number of students to test = ${testStudent}` : ''
+      throw new Error(message + messageVolume + messageStudents);
     }
+    return {
+      success: true
+    }
+  });
+};
+
+module.exports.checkAllLecturesSpaceEnough = function(lectures, extraParams) {
+  let promises = [];
+  lectures.forEach((lecture) => {
+    promises.push(this.checkSpaceEnough(lecture.classroom, lecture.school, extraParams));
+  });
+  return Promise.all(promises)
+  .then((data) => {
     return {
       success: true
     }

@@ -1,6 +1,8 @@
 process.env.NODE_ENV = 'test';
 
 const mongoose = require('mongoose');
+const Classroom = require('../models/classroom');
+const Lecture = require('../models/lecture');
 const School = require('../models/school');
 
 let chai = require('chai');
@@ -13,7 +15,12 @@ chai.use(chaiHttp);
 describe('School', () => {
   //Каждый раз перед запуском теста неоходимо очистить тестовую БД
   beforeEach((done) => {
-    School.remove({}, (err) => {
+    Promise.all([
+      Lecture.remove({}),
+      Classroom.remove({}),
+      School.remove({})
+    ])
+    .then(() => {
       done();
     });
   });
@@ -180,7 +187,9 @@ describe('School', () => {
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.should.have.property('success', false);
-            res.body.should.have.property('error', `Can't update, school doesn't exist`);
+            res.body.should.have.property('error');
+            res.body.error.should.be.a('object');
+            res.body.error.should.have.property('message', 'No school with id = 58e87166c0b4b02f6877d70c in database');
             done();
           });
     });
@@ -224,6 +233,37 @@ describe('School', () => {
               res.body.message.should.have.property('_id', school.id);
               done();
             });
+      });
+    });
+
+    it('it should not change number of students', (done) => {
+      let update = {students: 100};
+      let classroom = new Classroom({name: 'Синий кит', volume: 120, location: 'Первый этаж'});
+      let school1 = new School({name: 'Школа мобильной разработки', number_of_students: 50});
+      let school2 = new School({name: 'Школа мобильного дизайна', number_of_students: 70});
+      let promises = [classroom.save(), school1.save(), school2.save()];
+      Promise.all(promises).then((data) => {
+        let lecture = new Lecture({
+          name: 'Распределенные вычисления',
+          date: new Date('2017-07-03 19:00'),
+          classroom: data[0]['_id'],
+          school: [data[1]['_id'], data[2]['_id']],
+          teacher: 'Васечкин'
+        });
+        lecture.save((err, res) => {
+          chai.request(server)
+              .put(`/v1/schools/${school1.id}`)
+              .send(update)
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success', false);
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', 'Too many students, volume of classroom = 120, audience = 170, number of students to test = 100');
+                done();
+              });
+        });
       });
     });
   });

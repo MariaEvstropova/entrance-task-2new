@@ -4,6 +4,7 @@ mongoose.Promise = global.Promise;
 //Базовые операции одинаковые для всех моделей вынесли в отдельный файл
 const helper = require('./crudHelper');
 const School = require('../models/school');
+const Lecture = require('../models/lecture');
 
 //Школы
 module.exports.get_all_schools = function(req, res) {
@@ -74,26 +75,64 @@ module.exports.edit_school = function(req, res) {
       error: `Your request doens't contain params for udate. Params available for update: name, students.`
     });
   }
-  return (
-    School.findOneAndUpdate(
-      {_id: req.params.id},
-      update,
-      {runValidators: true, new: true}
-    ).exec()
-    .then((data) => {
-      if (!data) {
-        throw new Error(`Can't update, school doesn't exist`);
-      } else {
-        return res.json({
-          success: true,
-          message: data
-        });
+  return checkLecturesForSchool(req.params.id)
+  .then((data) => {
+    if (data.success) {
+      let extraParams = {
+        testStudent: req.body.students,
+        schoolId: req.params.id
+      };
+      return helper.checkAllLecturesSpaceEnough(data.lectures, extraParams);
+    }
+    return {
+      success: true
+    }
+  })
+  .then(() => {
+    return School.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
       }
-    }).catch((error) => {
-      return res.json({
-        success: false,
-        error: error.message
-      });
-    })
-  );
+    });
+  });
+};
+
+checkLecturesForSchool = function(id) {
+  return helper.checkItemExist(School, id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`No school with id = ${id} in database`);
+    }
+    return {
+      success: true
+    }
+  })
+  .then((data) => {
+    return Lecture.find({school: id}).exec();
+  })
+  .then((data) => {
+    if (data.length > 0) {
+      return {
+        success: true,
+        message: 'there are lectures',
+        lectures: data
+      }
+    }
+    return {
+      success: false,
+      message: 'no lectures',
+      lectures: null
+    }
+  })
 };
