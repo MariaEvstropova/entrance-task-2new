@@ -80,7 +80,7 @@ module.exports.create_lecture = function(req, res) {
     return checkAllSchoolsAvailable(req.body.schools, date);
   })
   .then(() => {
-    return checkSpaceEnough(req.body.classroom, req.body.schools);
+    return helper.checkSpaceEnough(req.body.classroom, req.body.schools);
   })
   .then((data) => {
     if (data.success) {
@@ -169,31 +169,6 @@ checkAllSchoolsAvailable = function(schoolsArray, date) {
     promises.push(checkSchoolAvailable(school, date));
   });
   return Promise.all(promises).then(() => {
-    return {
-      success: true
-    }
-  });
-};
-
-checkSpaceEnough = function(classroomId, schoolsId) {
-  let promises = [];
-  let volume = 0;
-  let audience = 0;
-  schoolsId.forEach((schoolId) => {
-    promises.push(School.findOne({_id: schoolId}).exec());
-  });
-  return Classroom.findOne({_id: classroomId}).exec()
-  .then((classroom) => {
-    volume = classroom.volume;
-    return Promise.all(promises);
-  })
-  .then((schools) => {
-    schools.forEach((school) => {
-      audience = audience + school.number_of_students;
-    });
-    if (volume < audience) {
-      throw new Error(`Too many students, volume of classroom = ${volume}`);
-    }
     return {
       success: true
     }

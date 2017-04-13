@@ -78,7 +78,7 @@ module.exports.edit_school = function(req, res) {
     School.findOneAndUpdate(
       {_id: req.params.id},
       update,
-      {new: true}
+      {runValidators: true, new: true}
     ).exec()
     .then((data) => {
       if (!data) {

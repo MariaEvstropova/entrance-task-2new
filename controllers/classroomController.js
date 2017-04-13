@@ -31,7 +31,7 @@ module.exports.create_classroom = function(req, res) {
           location: req.body.location,
           volume: req.body.volume
         });
-        
+
         return classroom.save();
       } else {
         throw new Error(`Classroom with name "${req.body.name}" exists`);
@@ -84,31 +84,33 @@ module.exports.edit_classroom = function(req, res) {
       }
     });
   }
-  return (
-    Classroom.findOneAndUpdate(
-      {_id: req.params.id},
-      update,
-      {new: true}
-    ).exec()
-    .then((data) => {
-      if (!data) {
-        throw new Error(`Can't update, classrom doesn't exist`);
-      } else {
-        return res.json({
-          success: true,
-          message: data
-        });
+  return checkLecturesInClassroom(req.params.id)
+  .then((data) => {
+    if (data.success && update.volume) {
+      return checkAllLecturesSpaceEnough(data.lectures, update.volume);
+    }
+    return {
+      sucess: true
+    }
+  })
+  .then(() => {
+    return Classroom.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
       }
-    }).catch((error) => {
-      return res.json({
-        success: false,
-        error: {
-          message: error.message,
-          errors: error.errors
-        }
-      });
-    })
-  );
+    });
+  });
 };
 
 /*
@@ -118,31 +120,68 @@ module.exports.edit_classroom = function(req, res) {
 @param {objectId} req.params.id
 */
 module.exports.delete_classroom = function(req, res) {
-  return (
-    Lecture.find({classroom: req.params.id}).exec()
-    .then((data) => {
-      if (data.length > 0) {
-        throw new Error(`Can not delete classroom. Change lectures to be able to delete: ${data.map((item) => {return item.name})}`);
-      } else {
-        return Classroom.findOneAndRemove({_id: req.params.id}).exec()
-        .then((data) => {
-          if (!data) {
-            throw new Error(`No classroom with id = ${req.params.id} in database`);
-          }
-          return res.json({
-            success: true,
-            message: data
-          });
-        });
+  return checkLecturesInClassroom(req.params.id)
+  .then((data) => {
+    if (data.success) {
+      throw new Error(`Can not delete classroom. Change lectures to be able to delete: ${data.lectures.map((item) => {return item.name})}`);
+    }
+    return Classroom.findOneAndRemove({_id: req.params.id}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
       }
-    }).catch((error) => {
-      return res.json({
-        success: false,
-        error: {
-          message: error.message,
-          errors: error.errors
-        }
-      });
-    })
-  );
+    });
+  });
+};
+
+checkLecturesInClassroom = function(id) {
+  return helper.checkItemExist(Classroom, id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`No classroom with id = ${id} in database`);
+    }
+    return {
+      success: true
+    }
+  })
+  .then(() => {
+    return Lecture.find({classroom: id}).exec()
+  })
+  .then((data) => {
+    if (data.length > 0) {
+      return {
+        success: true,
+        message: 'there are lectures',
+        lectures: data
+      }
+    }
+    return {
+      success: false,
+      message: 'no lectures',
+      lectures: null
+    }
+  })
+};
+
+checkAllLecturesSpaceEnough = function(lectures, testVolume) {
+  let promises = [];
+  lectures.forEach((lecture) => {
+    promises.push(helper.checkSpaceEnough(lecture.classroom, lecture.school, testVolume));
+  });
+  return Promise.all(promises)
+  .then((data) => {
+    return {
+      success: true
+    }
+  });
 }

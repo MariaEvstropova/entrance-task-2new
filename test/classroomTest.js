@@ -191,7 +191,7 @@ describe('Classroom', () => {
             res.body.should.have.property('success', false);
             res.body.should.have.property('error');
             res.body.error.should.be.a('object');
-            res.body.error.should.have.property('message', `Can't update, classrom doesn't exist`);
+            res.body.error.should.have.property('message', 'No classroom with id = 58e87166c0b4b02f6877d70c in database');
             done();
           });
     });
@@ -218,6 +218,37 @@ describe('Classroom', () => {
       });
     });
 
+    it('it sholud not change volume', (done) => {
+      let update = {volume: 100};
+      let classroom = new Classroom({name: 'Синий кит', volume: 150, location: 'Первый этаж'});
+      let school1 = new School({name: 'Школа мобильной разработки', number_of_students: 50});
+      let school2 = new School({name: 'Школа мобильного дизайна', number_of_students: 70});
+      let promises = [classroom.save(), school1.save(), school2.save()];
+      Promise.all(promises).then((data) => {
+        let lecture = new Lecture({
+          name: 'Распределенные вычисления',
+          date: new Date('2017-07-03 19:00'),
+          classroom: data[0]['_id'],
+          school: [data[1]['_id'], data[2]['_id']],
+          teacher: 'Васечкин'
+        });
+        lecture.save((err, res) => {
+          chai.request(server)
+            .put(`/v1/classrooms/${classroom.id}`)
+            .send(update)
+            .end((err, res) => {
+              res.should.have.status(200);
+              res.body.should.be.a('object');
+              res.body.should.have.property('success', false);
+              res.body.should.have.property('error');
+              res.body.error.should.be.a('object');
+              res.body.error.should.have.property('message', 'Too many students, volume of classroom = 150, volume to test = 100');
+              done();
+            });
+        });
+      });
+    });
+
     it('it should change only volume', (done) => {
       let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
       classroom.save((err, res) => {
@@ -240,7 +271,7 @@ describe('Classroom', () => {
       });
     });
 
-    it('it should change only name', (done) => {
+    it('it should change only location', (done) => {
       let classroom = new Classroom({name: 'Голубой щенок', volume: 200, location: 'Второй этаж'});
       classroom.save((err, res) => {
         let update = {location: 'Чердак'};
