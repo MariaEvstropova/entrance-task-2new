@@ -61,8 +61,6 @@ router.post('/schools', schoolController.create_school);
 //Изменить школу
 router.put('/schools/:id', schoolController.edit_school);
 //Удалить школу
-router.delete('/schools/:id', function (req, res) {
-  res.send('[DELETE] /schools/:id: Not implemented');
-});
+router.delete('/schools/:id', schoolController.delete_school);
 
 module.exports = router;

@@ -108,6 +108,37 @@ module.exports.edit_school = function(req, res) {
   });
 };
 
+/*
+Перед тем как удалять школу, необходимо удостовериться, что для неё не планируется занятий.
+Если для школы планируются лекции - возвращаем ошибку.
+
+@param {objectId} req.params.id
+*/
+module.exports.delete_school = function(req, res) {
+  return checkLecturesForSchool(req.params.id)
+  .then((data) => {
+    if (data.success) {
+      throw new Error(`Can not delete school. Change lectures to be able to delete: ${data.lectures.map((item) => {return item.name})}`);
+    }
+    return School.findOneAndRemove({_id: req.params.id}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
+  });
+};
+
 checkLecturesForSchool = function(id) {
   return helper.checkItemExist(School, id)
   .then((data) => {
