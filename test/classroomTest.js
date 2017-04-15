@@ -174,7 +174,7 @@ describe('Classroom', () => {
               res.body.should.have.property('success', false);
               res.body.should.have.property('error');
               res.body.error.should.be.a('object');
-              res.body.error.should.have.property('message', `Your request doens't contain params for udate. Params available for update: name, volume, location.`);
+              res.body.error.should.have.property('message', `Your request doens't contain params for update. Params available for update: name, volume, location.`);
               done();
             });
       });

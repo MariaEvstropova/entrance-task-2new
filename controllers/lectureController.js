@@ -111,6 +111,133 @@ module.exports.create_lecture = function(req, res) {
   });
 };
 
+/*
+Возможные поля для изменения
+@param {String} req.body.name
+@param {String} req.body.date - дата ожидается в формате: гггг-мм-д чч-мм
+@param {String} req.body.classroom - id
+@param {String} req.body.schools[] - id[]
+@param {String} req.body.teacher
+*/
+module.exports.edit_lecture = function(req, res) {
+  //Обновляем только те поля, которые есть в запросе
+  let update = {};
+  let lecture;
+  if (req.body.name) {
+    update.name = req.body.name;
+  }
+  if (req.body.date) {
+    update.date = req.body.date;
+  }
+  if (req.body.classroom) {
+    update.classroom = req.body.classroom;
+  }
+  if (req.body.schools) {
+    update.school = req.body.schools;
+  }
+  if (req.body.teacher) {
+    update.teacher = req.body.teacher;
+  }
+  if (!update.name && !update.date && !update.classroom && (!update.school || !Array.isArray(update.school) || update.school.length == 0) && !update.teacher) {
+    return res.json({
+      success: false,
+      error: {
+        message: `Your request doens't contain params for update. Params available for update: name, date, classroom, schools, teacher.`
+      }
+    });
+  }
+  if (update.school && !checkShoolIdUnique(update.school)) {
+    return res.json({
+      success: false,
+      error: {
+        message: 'Schools in array must be unique'
+      }
+    });
+  }
+  return helper.checkItemExist(Lecture, req.params.id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`Lecture with id = "${req.params.id}" does not exist`)
+    }
+    return {
+      success: true,
+      data: data
+    }
+  })
+  .then((data) => {
+    lecture = data.data.item;
+    if (update.name) {
+      return checkNameAvailable(update.name);
+    }
+    return {
+      success: true
+    }
+  })
+  .then(() => {
+    if (update.date) {
+      return checkDateisValid(update.date);
+    }
+    return {
+      success: true
+    }
+  })
+  .then(() => {
+    if (update.date) {
+      update.date = moment(update.date, moment.ISO_8601);
+    }
+    let promises = [];
+
+    if (update.classroom) {
+      if (update.date) {
+        promises.push(checkClassroomAvailable(update.classroom, update.date));
+      } else {
+        promises.push(checkClassroomAvailable(update.classroom, lecture.date));
+      }
+    } else if (update.date) {
+      promises.push(checkClassroomAvailable(lecture.classroom, update.date));
+    }
+
+    if (update.school) {
+      if (update.date) {
+        promises.push(checkAllSchoolsAvailable(update.school, update.date));
+      } else {
+        promises.push(checkAllSchoolsAvailable(update.school, lecture.date));
+      }
+    } else if (update.date) {
+      promises.push(checkAllSchoolsAvailable(lecture.school, update.date));
+    }
+
+    if (update.classroom && update.school) {
+      promises.push(helper.checkSpaceEnough(update.classroom, update.school));
+    } else if (update.classroom) {
+      promises.push(helper.checkSpaceEnough(update.classroom, lecture.school));
+    } else if (update.school) {
+      promises.push(helper.checkSpaceEnough(lecture.classroom, update.school));
+    }
+
+    return Promise.all(promises);
+  })
+  .then(() => {
+    console.log(update)
+    return Lecture.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
+  });
+};
+
 checkNameAvailable = function(name) {
   return Lecture
       .find({name: name}).exec()
@@ -136,7 +263,7 @@ checkClassroomAvailable = function(classroom, date) {
       }).exec()
       .then((data) => {
         if (data.length > 0) {
-          throw new Error(`Classroom id = ${classroom} is not available at time = ${date}`);
+          throw new Error(`Classroom id = ${classroom} is not available at time = ${date.toISOString()}`);
         }
         return {
           success: true
@@ -155,7 +282,7 @@ checkSchoolAvailable = function(school, date) {
       }).exec()
       .then((data) => {
         if (data.length > 0) {
-          throw new Error(`School id = ${school} is not available at time = ${date}`);
+          throw new Error(`School id = ${school} is not available at time = ${date.toISOString()}`);
         }
         return {
           success: true
@@ -202,9 +329,7 @@ checkDateisValid = function(lectureDate) {
   return new Promise((resolve, reject) => {
     let date = moment(lectureDate, moment.ISO_8601);
     if (!date.isValid()) {
-      reject({
-        message :'There is issue with date and time you\'ve provided'
-      });
+      throw new Error('There is issue with date and time you\'ve provided');
     }
     resolve(
       {

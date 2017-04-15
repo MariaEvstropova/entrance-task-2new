@@ -172,7 +172,7 @@ describe('School', () => {
               res.should.have.status(200);
               res.body.should.be.a('object');
               res.body.should.have.property('success', false);
-              res.body.should.have.property('error', `Your request doens't contain params for udate. Params available for update: name, students.`);
+              res.body.should.have.property('error', `Your request doens't contain params for update. Params available for update: name, students.`);
               done();
             });
       });

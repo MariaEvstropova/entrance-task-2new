@@ -80,7 +80,7 @@ module.exports.edit_classroom = function(req, res) {
     return res.json({
       success: false,
       error: {
-        message: `Your request doens't contain params for udate. Params available for update: name, volume, location.`
+        message: `Your request doens't contain params for update. Params available for update: name, volume, location.`
       }
     });
   }

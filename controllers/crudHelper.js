@@ -42,7 +42,8 @@ module.exports.checkItemExist = function(model, id) {
     if (data) {
       return {
         success: true,
-        message: 'exist'
+        message: 'exist',
+        item: data
       }
     }
     return {
