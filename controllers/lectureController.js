@@ -114,7 +114,7 @@ module.exports.create_lecture = function(req, res) {
 /*
 Возможные поля для изменения
 @param {String} req.body.name
-@param {String} req.body.date - дата ожидается в формате: гггг-мм-д чч-мм
+@param {String} req.body.date - дата ожидается в формате: гггг-мм-дд чч-мм
 @param {String} req.body.classroom - id
 @param {String} req.body.schools[] - id[]
 @param {String} req.body.teacher
@@ -245,6 +245,94 @@ module.exports.remove_lecture = function(req, res) {
     }
     return Lecture.findOneAndRemove({_id: req.params.id}).exec();
   })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
+  });
+};
+
+/*
+@param {String} req.param.id
+@param {String} req.query.from - дата ожидается в формате: гггг-мм-дд
+@param {String} req.query.to - дата ожидается в формате: гггг-мм-дд
+*/
+module.exports.get_lectures_for_classroom = function(req, res) {
+  let dateFrom = req.query.from;
+  let dateTo = req.query.to;
+  let find = {};
+  find.classroom = req.params.id;
+  let date;
+
+  try {
+    date = createDateParamsForFind(dateFrom, dateTo);
+  } catch (error) {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message
+      }
+    });
+  }
+  if (date['$gte'] || date['$lte']) {
+    find.date = date;
+  }
+
+  return Lecture.find(find).exec()
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
+  });
+};
+
+/*
+@param {String} req.param.id
+@param {String} req.query.from - дата ожидается в формате: гггг-мм-дд
+@param {String} req.query.to - дата ожидается в формате: гггг-мм-дд
+*/
+module.exports.get_lectures_for_school = function(req, res) {
+  let dateFrom = req.query.from;
+  let dateTo = req.query.to;
+  let find = {};
+  find.school = req.params.id;
+  let date;
+
+  try {
+    date = createDateParamsForFind(dateFrom, dateTo);
+  } catch (error) {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message
+      }
+    });
+  }
+  if (date['$gte'] || date['$lte']) {
+    find.date = date;
+  }
+
+  return Lecture.find(find).exec()
   .then((data) => {
     return res.json({
       success: true,
@@ -412,4 +500,25 @@ checkShoolIdUnique = function(schools) {
     if (!unique) {break;}
   }
   return unique;
+};
+
+createDateParamsForFind = function(dateFrom, dateTo) {
+  let find = {};
+  if (dateFrom || dateTo) {
+    if (dateFrom) {
+      let date = moment(dateFrom, moment.ISO_8601);
+      if (!date.isValid()) {
+        throw new Error('There is issue with date from you\'ve provided');
+      }
+      find['$gte'] = date;
+    }
+    if (dateTo) {
+      let date = moment(dateTo, moment.ISO_8601);
+      if (!date.isValid()) {
+        throw new Error('There is issue with date to you\'ve provided')
+      }
+      find['$lte'] = date;
+    }
+  }
+  return find;
 };

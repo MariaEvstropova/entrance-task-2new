@@ -10,19 +10,9 @@ router.get('/', function(req, res) {
 
 //Лекции
 //Перечень лекций для конкретной школы
-router.get('/lectures/school/:id',  function(req, res, next) {
-  console.log(req.query);
-  next();
-}, function(req, res) {
-  res.send('[GET] /lectures/school/:id: Not implemented');
-});
+router.get('/lectures/school/:id', lectureController.get_lectures_for_school);
 //Перечень лекций для конкретной аудитории
-router.get('/lectures/classroom/:id',  function(req, res, next) {
-  console.log(req.query);
-  next();
-}, function(req, res) {
-  res.send('[GET] /lectures/classroom/:id: Not implemented');
-});
+router.get('/lectures/classroom/:id', lectureController.get_lectures_for_classroom);
 
 //Печеречь всех лекций
 router.get('/lectures', lectureController.get_all_lectures);
