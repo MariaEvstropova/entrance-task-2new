@@ -33,9 +33,7 @@ router.post('/lectures', lectureController.create_lecture);
 //Изменить лекцию
 router.put('/lectures/:id', lectureController.edit_lecture);
 //Удалить лекцию
-router.delete('/lectures/:id', function (req, res) {
-  res.send('[DELETE] /lectures/:id: Not implemented');
-});
+router.delete('/lectures/:id', lectureController.remove_lecture);
 
 //Аудитории
 //Печеречь всех аудиторий

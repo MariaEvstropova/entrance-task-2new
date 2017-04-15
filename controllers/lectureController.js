@@ -218,8 +218,32 @@ module.exports.edit_lecture = function(req, res) {
     return Promise.all(promises);
   })
   .then(() => {
-    console.log(update)
     return Lecture.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
+  })
+  .then((data) => {
+    return res.json({
+      success: true,
+      message: data
+    });
+  })
+  .catch((error) => {
+    return res.json({
+      success: false,
+      error: {
+        message: error.message,
+        errors: error.errors
+      }
+    });
+  });
+};
+
+module.exports.remove_lecture = function(req, res) {
+  return helper.checkItemExist(Lecture, req.params.id)
+  .then((data) => {
+    if (!data.success) {
+      throw new Error(`No lecture with id = ${req.params.id} in database`)
+    }
+    return Lecture.findOneAndRemove({_id: req.params.id}).exec();
   })
   .then((data) => {
     return res.json({
