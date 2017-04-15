@@ -53,6 +53,12 @@ module.exports.checkItemExist = function(model, id) {
   });
 };
 
+/*
+Метод проверияет достаточно ли места для школ с id[] = schoolsId в аудитории с id = classroomId.
+Метод принимает дополнительные параметры extraParams, которые могут содержать:
+1) testVolume - для проверки нового значения объема аудитории
+2) testStudent и testSchoolId - для проверки нового значения number_of_students для аудитории с id = testSchoolId
+*/
 module.exports.checkSpaceEnough = function(classroomId, schoolsId, extraParams) {
   let promises = [];
   let classroomVolume = 0;
@@ -68,17 +74,20 @@ module.exports.checkSpaceEnough = function(classroomId, schoolsId, extraParams) 
     testSchoolId = extraParams.schoolId;
   }
 
+  //Создаем массив промизов для поиска всех указанных на лекции школ
   schoolsId.forEach((schoolId) => {
     promises.push(School.findOne({_id: schoolId}).exec());
   });
   return Classroom.findOne({_id: classroomId}).exec()
   .then((classroom) => {
     classroomVolume = classroom.volume;
+    //Если указан testVolume - будем проверять его
     volume = testVolume || classroomVolume;
     return Promise.all(promises);
   })
   .then((schools) => {
     schools.forEach((school) => {
+      //Если у нас есть школа, для которой надо проверить новое число студентов, то подставим его
       if (!!testSchoolId && !!testStudent && school.id == testSchoolId) {
         audience = audience + testStudent;
       } else {

@@ -56,7 +56,7 @@ module.exports.create_classroom = function(req, res) {
 };
 
 /*
-Перед обращением к базе данных необходимо удостовериться что если данные, которые нужно обновить.
+Перед обращением к базе данных необходимо удостовериться что есть данные, которые нужно обновить.
 Если запрос пустой - проводить поиск не будем.
 
 @param {objectId} req.params.id
@@ -84,12 +84,15 @@ module.exports.edit_classroom = function(req, res) {
       }
     });
   }
+  // Если мы планируем изменить объем аудитории, нужно уточнить для всех ли лекций всем ли хватит метста.
+  // Уточнить планируются ли лекции в аудитории
   return checkLecturesInClassroom(req.params.id)
   .then((data) => {
     if (data.success && update.volume) {
       let extraParams = {
         testVolume: update.volume
       }
+      //Уточним всем ли хватит места
       return helper.checkAllLecturesSpaceEnough(data.lectures, extraParams);
     }
     return {
@@ -97,6 +100,10 @@ module.exports.edit_classroom = function(req, res) {
     }
   })
   .then(() => {
+    /*
+    Все проверки успешно выполнены, можно обновлять.
+    При обновлении запускаем валидаторы для mongoose schema и возвращаем новое значение.
+    */
     return Classroom.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
   })
   .then((data) => {
@@ -148,6 +155,7 @@ module.exports.delete_classroom = function(req, res) {
 };
 
 checkLecturesInClassroom = function(id) {
+  //Уточним есть ли аудитория с таким id
   return helper.checkItemExist(Classroom, id)
   .then((data) => {
     if (!data.success) {

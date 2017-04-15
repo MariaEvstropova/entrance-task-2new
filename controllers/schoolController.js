@@ -77,7 +77,11 @@ module.exports.edit_school = function(req, res) {
   }
   return checkLecturesForSchool(req.params.id)
   .then((data) => {
-    if (data.success) {
+    /*
+    Если для школы есть лекции и планируется изменить число студентов,
+    нужно проверить на всех ли запланированных лекциях всем ли хватит места
+    */
+    if (data.success && update.number_of_students) {
       let extraParams = {
         testStudent: req.body.students,
         schoolId: req.params.id
@@ -89,6 +93,10 @@ module.exports.edit_school = function(req, res) {
     }
   })
   .then(() => {
+    /*
+    Все проверки успешно выполнены, можно обновлять.
+    При обновлении запускаем валидаторы для mongoose schema и возвращаем новое значение.
+    */
     return School.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
   })
   .then((data) => {
@@ -140,6 +148,7 @@ module.exports.delete_school = function(req, res) {
 };
 
 checkLecturesForSchool = function(id) {
+  //Проверим есть ли школа с таким id
   return helper.checkItemExist(School, id)
   .then((data) => {
     if (!data.success) {
@@ -150,6 +159,7 @@ checkLecturesForSchool = function(id) {
     }
   })
   .then((data) => {
+    //Проверим есть ли для школы лекции
     return Lecture.find({school: id}).exec();
   })
   .then((data) => {

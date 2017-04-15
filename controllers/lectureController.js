@@ -10,8 +10,9 @@ const Classroom = require('../models/classroom');
 const School = require('../models/school');
 const Lecture = require('../models/lecture');
 
-//Лекции
+//Возвращает все лекции
 module.exports.get_all_lectures = function(req, res) {
+  //Возвращаем данные о школах и аудиториях в развернутом виде, для этого используем mongoose populate
   return Lecture.find({})
         .populate({path: 'classroom', model: Classroom})
         .populate({path: 'school', model: School})
@@ -31,7 +32,10 @@ module.exports.get_all_lectures = function(req, res) {
           });
         });
 };
+
+//Возвращает лекицю по id
 module.exports.get_lecture_byId = function(req, res) {
+  //Возвращаем данные о школах и аудиториях в развернутом виде, для этого используем mongoose populate
   return Lecture.findOne({_id: req.params.id})
         .populate({path: 'classroom', model: Classroom})
         .populate({path: 'school', model: School})
@@ -54,7 +58,7 @@ module.exports.get_lecture_byId = function(req, res) {
 
 /*
 @param {String} req.body.name
-@param {String} req.body.date - дата ожидается в формате: гггг-мм-д чч-мм
+@param {String} req.body.date - дата ожидается в формате: гггг-мм-дд чч-мм
 @param {String} req.body.classroom - id
 @param {String} req.body.schools[] - id[]
 @param {String} req.body.teacher
@@ -146,6 +150,7 @@ module.exports.edit_lecture = function(req, res) {
       }
     });
   }
+  //Если планируем обновлять школу, но в запросе указали одну и ту же школу несколько раз - вернуть ошибку
   if (update.school && !checkShoolIdUnique(update.school)) {
     return res.json({
       success: false,
@@ -154,6 +159,7 @@ module.exports.edit_lecture = function(req, res) {
       }
     });
   }
+  //Уточнить есть ли лекция с таким id
   return helper.checkItemExist(Lecture, req.params.id)
   .then((data) => {
     if (!data.success) {
@@ -165,7 +171,9 @@ module.exports.edit_lecture = function(req, res) {
     }
   })
   .then((data) => {
+    //После поиска аудитории сохраним её в переменной lecture, определенной выше
     lecture = data.data.item;
+    //Если планируем изменять название - проверить не занято ли новое название
     if (update.name) {
       return checkNameAvailable(update.name);
     }
@@ -182,6 +190,7 @@ module.exports.edit_lecture = function(req, res) {
     }
   })
   .then(() => {
+    // Если планируется изменение даты, необходимо удостовериться что аудитория и школы свободны в этот день и час.
     if (update.date) {
       update.date = moment(update.date, moment.ISO_8601);
     }
@@ -189,16 +198,20 @@ module.exports.edit_lecture = function(req, res) {
 
     if (update.classroom) {
       if (update.date) {
+        //Проверить свободна ли "новая" аудитория в "новый" день
         promises.push(checkClassroomAvailable(update.classroom, update.date));
       } else {
+        //Проверить свободна ли новая аудитория в "старый" день
         promises.push(checkClassroomAvailable(update.classroom, lecture.date));
       }
     } else if (update.date) {
+      //Проверить свободна ли "старая" аудитория в "новый" день
       promises.push(checkClassroomAvailable(lecture.classroom, update.date));
     }
 
     if (update.school) {
       if (update.date) {
+        //Проверить свободны ли все школы в "новый" день
         promises.push(checkAllSchoolsAvailable(update.school, update.date));
       } else {
         /*
@@ -212,9 +225,11 @@ module.exports.edit_lecture = function(req, res) {
         promises.push(checkAllSchoolsAvailable(schools, lecture.date));
       }
     } else if (update.date) {
+      //Проверить свободны ли все школы в "новый" день
       promises.push(checkAllSchoolsAvailable(lecture.school, update.date));
     }
 
+    //Проверить всем ли на лекции хватит посадочных мест
     if (update.classroom && update.school) {
       promises.push(helper.checkSpaceEnough(update.classroom, update.school));
     } else if (update.classroom) {
@@ -226,6 +241,10 @@ module.exports.edit_lecture = function(req, res) {
     return Promise.all(promises);
   })
   .then(() => {
+    /*
+    Все проверки успешно выполнены, можно обновлять.
+    При обновлении запускаем валидаторы для mongoose schema и возвращаем новое значение.
+    */
     return Lecture.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
   })
   .then((data) => {
@@ -246,6 +265,7 @@ module.exports.edit_lecture = function(req, res) {
 };
 
 module.exports.remove_lecture = function(req, res) {
+  //Проверить есть ли лекция с таким id
   return helper.checkItemExist(Lecture, req.params.id)
   .then((data) => {
     if (!data.success) {
@@ -276,12 +296,19 @@ module.exports.remove_lecture = function(req, res) {
 @param {String} req.query.to - дата ожидается в формате: гггг-мм-дд
 */
 module.exports.get_lectures_for_classroom = function(req, res) {
+  /*
+  Т.к. валидными считаются запросы не содержащие from и to,
+  запросы содержащие только один из параметров,
+  запросы содержащие ода параметра,
+  создадим пустую переменную find, в которую потом запишем все что пришло в запросе
+  */
   let dateFrom = req.query.from;
   let dateTo = req.query.to;
   let find = {};
   find.classroom = req.params.id;
   let date;
 
+  //Проверим все ли пришедшие даты валидны, если нет - поймаем ошибку и вернем с ней response
   try {
     date = createDateParamsForFind(dateFrom, dateTo);
   } catch (error) {
@@ -293,6 +320,7 @@ module.exports.get_lectures_for_classroom = function(req, res) {
     });
   }
   if (date['$gte'] || date['$lte']) {
+    //Если в запросе пришел 1 или 2 валидных параметра для фильтрации по дате, запишем их в find
     find.date = date;
   }
 
@@ -320,12 +348,19 @@ module.exports.get_lectures_for_classroom = function(req, res) {
 @param {String} req.query.to - дата ожидается в формате: гггг-мм-дд
 */
 module.exports.get_lectures_for_school = function(req, res) {
+  /*
+  Т.к. валидными считаются запросы не содержащие from и to,
+  запросы содержащие только один из параметров,
+  запросы содержащие ода параметра,
+  создадим пустую переменную find, в которую потом запишем все что пришло в запросе
+  */
   let dateFrom = req.query.from;
   let dateTo = req.query.to;
   let find = {};
   find.school = req.params.id;
   let date;
 
+  //Проверим все ли пришедшие даты валидны, если нет - поймаем ошибку и вернем с ней response
   try {
     date = createDateParamsForFind(dateFrom, dateTo);
   } catch (error) {
@@ -337,6 +372,7 @@ module.exports.get_lectures_for_school = function(req, res) {
     });
   }
   if (date['$gte'] || date['$lte']) {
+    //Если в запросе пришел 1 или 2 валидных параметра для фильтрации по дате, запишем их в find
     find.date = date;
   }
 
@@ -373,11 +409,15 @@ checkNameAvailable = function(name) {
 };
 
 checkClassroomAvailable = function(classroom, date) {
+  /*
+  Для того, чтобы определить свободна ли аудитория в данное время произведем поиск по всем лекция для данной аудитории.
+  Временной интервал зададим +/- 3 часа (т.к. полагаем что 1 лекция идет < 3 часов)
+  */
   return Lecture
       .find({
         classroom: classroom,
         date: {
-          $gt: moment(date).subtract(3, 'hours'),
+          $gte: moment(date).subtract(3, 'hours'),
           $lt: moment(date).add(3, 'hours')
         }
       }).exec()
@@ -392,11 +432,15 @@ checkClassroomAvailable = function(classroom, date) {
 };
 
 checkSchoolAvailable = function(school, date) {
+  /*
+  Для того, чтобы определить свободна ли школа в данное время произведем поиск по всем лекция для данной школы.
+  Временной интервал зададим +/- 3 часа (т.к. полагаем что 1 лекция идет < 3 часов)
+  */
   return Lecture
       .find({
         school: school,
         date: {
-          $gt: moment(date).subtract(3, 'hours'),
+          $gte: moment(date).subtract(3, 'hours'),
           $lt: moment(date).add(3, 'hours')
         }
       }).exec()
@@ -434,6 +478,7 @@ checkPostParams = function(classroom, schools) {
         message: 'Schools array is empty'
       });
     }
+    //Некорректными считаются данные в которых одна школа повторяется более 1 раза
     if (!checkShoolIdUnique(schools)) {
       reject({
         message: 'Schools in array must be unique'
