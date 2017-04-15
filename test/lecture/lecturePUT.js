@@ -430,8 +430,87 @@ describe('Lecture PUT', () => {
       });
     });
 
-    it('it should not update lecture if space not enough (new classroom)');
-    it('it should not update lecture if space not enough (new schools)');
+    it('it should not update lecture if space not enough (new classroom)', (done) => {
+      let update = {};
+      let classroom1 = new Classroom({name: 'Синий кит', volume: 150, location: 'Первый этаж'});
+      let classroom2 = new Classroom({name: 'Черный кот', volume: 100, location: 'Крыша'});
+      let school1 = new School({name: 'Школа мобильной разработки', number_of_students: 70});
+      let school2 = new School({name: 'Школа мобильного дизайна', number_of_students: 70});
+      let promises = [classroom1.save(), classroom2.save(), school1.save(), school2.save()];
+      Promise.all(promises).then((data) => {
+        let lecture1 = new Lecture({
+          name: 'Распределенные вычисления',
+          date: new Date('2017-07-03 19:00'),
+          classroom: classroom1.id,
+          school: [school1.id, school2.id],
+          teacher: 'Васечкин'
+        });
+        let lecture2 = new Lecture({
+          name: 'Операционные системы',
+          date: new Date('2017-07-04 19:00'),
+          classroom: classroom2.id,
+          school: [school2.id],
+          teacher: 'Васечкин'
+        });
+        let promises = [lecture1.save(), lecture2.save()];
+        Promise.all(promises).then(() => {
+          update.classroom = classroom2.id;
+          chai.request(server)
+              .put(`/v1/lectures/${lecture1.id}`)
+              .send(update)
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success', false);
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', 'Too many students, volume of classroom = 100');
+                done();
+              });
+        });
+      });
+    });
+
+    it('it should not update lecture if space not enough (new schools)', (done) => {
+      let update = {};
+      let classroom1 = new Classroom({name: 'Синий кит', volume: 100, location: 'Первый этаж'});
+      let classroom2 = new Classroom({name: 'Черный кот', volume: 100, location: 'Крыша'});
+      let school1 = new School({name: 'Школа мобильной разработки', number_of_students: 70});
+      let school2 = new School({name: 'Школа мобильного дизайна', number_of_students: 70});
+      let promises = [classroom1.save(), classroom2.save(), school1.save(), school2.save()];
+      Promise.all(promises).then((data) => {
+        let lecture1 = new Lecture({
+          name: 'Распределенные вычисления',
+          date: new Date('2017-07-03 19:00'),
+          classroom: classroom1.id,
+          school: [school1.id],
+          teacher: 'Васечкин'
+        });
+        let lecture2 = new Lecture({
+          name: 'Операционные системы',
+          date: new Date('2017-07-04 19:00'),
+          classroom: classroom2.id,
+          school: [school2.id],
+          teacher: 'Васечкин'
+        });
+        let promises = [lecture1.save(), lecture2.save()];
+        Promise.all(promises).then(() => {
+          update.schools = [school1.id, school2.id];
+          chai.request(server)
+              .put(`/v1/lectures/${lecture1.id}`)
+              .send(update)
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success', false);
+                res.body.should.have.property('error');
+                res.body.error.should.be.a('object');
+                res.body.error.should.have.property('message', 'Too many students, volume of classroom = 100');
+                done();
+              });
+        });
+      });
+    });
 
     it('it should update lecture', (done) => {
       let update = {};

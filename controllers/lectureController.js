@@ -201,7 +201,15 @@ module.exports.edit_lecture = function(req, res) {
       if (update.date) {
         promises.push(checkAllSchoolsAvailable(update.school, update.date));
       } else {
-        promises.push(checkAllSchoolsAvailable(update.school, lecture.date));
+        /*
+        Если дата не меняется, то проверить свободны ли все школы нужно только для тех школ
+        которых не на лекции сейчас.
+        То есть нужно выделить разность массивов и проверить только их.
+        */
+        let schools = update.school.filter((school) => {
+          return lecture.school.indexOf(school) == -1;
+        });
+        promises.push(checkAllSchoolsAvailable(schools, lecture.date));
       }
     } else if (update.date) {
       promises.push(checkAllSchoolsAvailable(lecture.school, update.date));
