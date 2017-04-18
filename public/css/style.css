@@ -1,0 +1,285 @@
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: #000;
+  min-height: 100%;
+}
+input, select {
+  font-size: 16px;
+}
+a {
+  text-decoration: none;
+  color: black;
+  display: block;
+}
+a:hover {
+  color: #e61400;
+}
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.content-sections {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.content-sections .lecture-section,
+.content-sections .classroom-section,
+.content-sections .school-section {
+  flex: 1 1 300px;
+  margin: 10px;
+  border: 1px solid #d3d3d3;
+  padding: 10px;
+  border-radius: 5px;
+}
+.main-content ul li a {
+  padding: 10px 0;
+}
+.main-content ul li:nth-child(2n+1) a {
+  background-color: rgba(254, 225, 51, 0.2);
+}
+.main-content ul li a:hover {
+  color: #e61400;
+  background-color: rgba(254, 225, 51, 0.3);
+}
+.title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 20px auto;
+}
+.sub-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 20px auto;
+  background-color: #fee133;
+  padding: 10px;
+}
+.info {
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  margin: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.lecture-info,
+.classroom-info,
+.school-info {
+  flex: 1 1 600px;
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 5px;
+}
+.info .classroom-form,
+.info .lecture-form,
+.info .school-form {
+  margin: 5px;
+}
+.delete {
+  text-align: center;
+  background-color: #e61400;
+  padding: 10px;
+  margin-top: 20px;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  width: 100%;
+  box-sizing: border-box;
+}
+.delete:hover {
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 2px 2px 1px 1px #b2b2b2;
+}
+.info .change {
+  color: #000;
+  background-color: #fee133;
+}
+.classroom-lectures,
+.school-lectures {
+  flex: 1 1 600px;
+  padding: 10px;
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  margin: 5px;
+}
+.classroom-lectures label,
+.classroom-lectures input[type="date"],
+.school-lectures label,
+.school-lectures input[type="date"] {
+  display: inline-block;
+  width: inherit;
+}
+.classroom-lectures label,
+.school-lectures label {
+  margin-right: 10px;
+}
+.classroom-lectures table,
+.school-lectures table {
+  margin: 20px 0;
+}
+table {
+  line-height: 1.2em;
+  box-sizing: border-box;
+  width: 100%;
+  word-break: break-word;
+}
+thead {
+  background-color: #fee133;
+}
+tr {
+  border-top: 1px solid #D3D3D3;
+  border-bottom: 1px solid #D3D3D3;
+}
+tbody tr:hover {
+  background-color: rgba(254, 225, 51, 0.3);
+}
+th, td {
+  padding: 5px;
+  vertical-align: middle;
+}
+th {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  opacity: .8;
+  text-align: left;
+}
+td.td-sub {
+  padding-left: 0px;
+}
+td.td-sub > div {
+  padding-left: 5px;
+}
+td div.sub-row {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #D3D3D3;
+}
+td div.sub-row:last-child {
+  border-bottom: none;
+}
+section form {
+  flex: 1 1 300px;
+  margin: 0;
+  margin-top: 10px;
+  padding: 5px;
+  border: 1px solid #D3D3D3;
+  border-radius: 5px;
+}
+section form h1  {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+section form label,
+section form input,
+section form select {
+  display: block;
+}
+section form input:not([type="submit"]) {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #D3D3D3;
+  border-radius: 2px;
+  box-sizing: border-box;
+  color: #7c7b7b;
+}
+section form label {
+  padding: 20px 0 10px;
+}
+
+section form select {
+  display: block;
+  width: 100%;
+  padding: 5px 0;
+}
+section form input:focus {
+  outline: #fee133 auto 5px;
+}
+.create-new,
+section form input[type="submit"] {
+  background-color: #e61400;
+  padding: 10px;
+  margin-top: 20px;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  width: 100%;
+  box-sizing: border-box;
+}
+.create-new:hover,
+section form input[type="submit"]:hover {
+  cursor: pointer;
+  box-shadow: 2px 2px 1px 1px #b2b2b2;
+}
+
+@media screen and (max-width: 600px) {
+  .lecture-table thead {
+    display: none;
+  }
+  table.lecture-table, .lecture-table tbody, .lecture-table tr, .lecture-table td {
+    display: block;
+    border: none;
+  }
+  .lecture-table tbody tr:hover {
+    background: #fff;
+  }
+  table.lecture-table {
+    border-bottom: 1px solid #D3D3D3;
+  }
+  .lecture-table tr {
+    margin-bottom: 10px;
+  }
+  .lecture-table td.td-sub {
+    padding: 0;
+  }
+  .lecture-table td, .lecture-table td.td-sub {
+    position: relative;
+    padding-left: 35%;
+  }
+  .lecture-table td.td-sub > div {
+    padding-left: 0px;
+  }
+  .lecture-table td.td-sub div:first-child {
+    padding-top: 0px;
+  }
+  .lecture-table td.td-sub div:last-child {
+    padding-bottom: 0px;
+  }
+  .lecture-table td::before {
+    content: attr(data-th);
+    display: inline-block;
+    position: absolute;
+    padding-top: 5px;
+    padding-left: 5px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 30%;
+    max-height: 100%;
+    text-transform: uppercase;
+    opacity: .8;
+  }
+  .lecture-table tr td:first-child {
+    background-color: #fee133;
+    background-color: rgba(254, 225, 51, 0.6);
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .lecture-table tr td:first-child::before {
+    padding-top: 10px;
+  }
+  .lecture-table tr:not(.finished) td:not(:first-child):hover {
+    background-color: rgba(254, 225, 51, 0.3);
+  }
+}

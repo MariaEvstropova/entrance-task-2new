@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/', index);
+app.use('/', express.static('public'));
 app.use('/v1', api);
 
 //Все запросы, которые не попали в index и api будем обрабатывать как ошибки 404

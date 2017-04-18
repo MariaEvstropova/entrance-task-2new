@@ -5,8 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test --recursive",
-    "start": "NODE_ENV=dev && node server.js",
-    "devstart": "NODE_ENV=dev && nodemon server.js"
+    "start": "NODE_ENV=dev && webpack && node server.js",
+    "nodemon-watch": "nodemon server.js",
+    "webpack-watch": "webpack -w",
+    "devstart": "NODE_ENV=dev && concurrently --kill-others \"npm run webpack-watch\" \"npm run nodemon-watch\""
   },
   "author": "Maria Evstropova",
   "license": "ISC",
@@ -16,12 +18,26 @@
     "express": "^4.13.4",
     "moment": "^2.18.1",
     "mongoose": "^4.4.15",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-react": "^6.23.0",
     "chai": "^3.5.0",
     "chai-http": "^2.0.1",
+    "concurrently": "^3.4.0",
+    "css-loader": "^0.28.0",
+    "file-loader": "^0.11.1",
     "mocha": "^2.4.5",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "style-loader": "^0.16.1",
+    "url-loader": "^0.5.8",
+    "webpack": "^2.3.2"
   }
 }
