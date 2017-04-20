@@ -1,64 +1,33 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import LecturesSection from './LecturesSection.jsx';
 import ClassroomsSection from './ClassroomsSection.jsx';
 import SchoolsSection from './SchoolsSection.jsx';
 
-export default class IndexPage extends React.Component {
+export class IndexPage extends React.Component {
   render() {
-    let lectures = [
-      {
-        id: 1,
-        name: "Параллельные вычисления"
-      },
-      {
-        id: 2,
-        name: "Параллельные вычисления"
-      },
-      {
-        id: 3,
-        name: "Параллельные вычисления"
-      }
-    ];
-    let classrooms = [
-      {
-        id: 1,
-        name: "Синий кит"
-      },
-      {
-        id: 2,
-        name: "Синий кит"
-      },
-      {
-        id: 3,
-        name: "Синий кит"
-      }
-    ];
-    let schools = [
-      {
-        id: 1,
-        name: "Школа мобильной разработки"
-      },
-      {
-        id: 2,
-        name: "Школа мобильной разработки"
-      },
-      {
-        id: 3,
-        name: "Школа мобильной разработки"
-      }
-    ];
     return (
       <div className="main-content">
         <div className="content-sections">
           <LecturesSection
-            lectures={lectures}
-            classrooms={classrooms}
-            schools={schools}
+            lectures={this.props.lectures}
+            classrooms={this.props.classrooms}
+            schools={this.props.schools}
           />
-          <ClassroomsSection classrooms={classrooms} />
-          <SchoolsSection schools={schools} />
+          <ClassroomsSection classrooms={this.props.classrooms} />
+          <SchoolsSection schools={this.props.schools} />
         </div>
       </div>
     );
   }
 }
+
+function mapStateToProps(state, ownProps) {
+  return {
+    lectures: state.lectures,
+    classrooms: state.classrooms,
+    schools: state.schools
+  }
+}
+
+export default connect(mapStateToProps)(IndexPage);

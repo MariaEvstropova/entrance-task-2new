@@ -11,7 +11,7 @@ export default class SchoolssSection extends React.Component {
           {this.props.schools.map((school, index) => {
             return (
               <li key={index}>
-                <Link to={`/school/${school.id}`}>{school.name}</Link>
+                <Link to={`/school/${school["_id"]}`}>{school.name}</Link>
               </li>
             )
           })}

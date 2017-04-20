@@ -8,9 +8,14 @@ import LecturePage from './components/LecturePage/LecturePage.jsx';
 import SchoolPage from './components/SchoolPage/SchoolPage.jsx';
 import ClassroomPage from './components/ClassroomPage/ClassroomPage.jsx';
 import { loadLectures } from './actions/lectureActions';
+import { loadClassrooms } from './actions/classroomActions';
+import { loadSchools } from './actions/schoolActions';
 
 const store = configureStore();
+
 store.dispatch(loadLectures());
+store.dispatch(loadClassrooms());
+store.dispatch(loadSchools());
 
 ReactDOM.render(
   <Provider store={store}>

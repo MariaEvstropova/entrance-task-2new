@@ -11,7 +11,7 @@ export default class LecturesSection extends React.Component {
           {this.props.lectures.map((lecture, index) => {
             return (
               <li key={index}>
-                <Link to={`/lecture/${lecture.id}`}>{lecture.name}</Link>
+                <Link to={`/lecture/${lecture["_id"]}`}>{lecture.name}</Link>
               </li>
             )
           })}
