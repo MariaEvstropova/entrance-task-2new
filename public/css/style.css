@@ -112,6 +112,9 @@ a:hover {
   border-radius: 5px;
   margin: 5px;
 }
+.lecture-form label[for="lecture-date"],
+.lecture-form input[type="datetime-local"],
+.classroom-lectures input[type="date"],
 .classroom-lectures label,
 .classroom-lectures input[type="date"],
 .school-lectures label,
@@ -119,6 +122,7 @@ a:hover {
   display: inline-block;
   width: inherit;
 }
+.lecture-form label[for="lecture-date"],
 .classroom-lectures label,
 .school-lectures label {
   margin-right: 10px;
