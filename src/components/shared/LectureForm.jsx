@@ -31,7 +31,7 @@ export default class LecturesForm extends React.Component {
         <input type="datetime-local" id="lecture-date" />
         <label htmlFor="lecture-teacher">Преподаватель</label>
         <input id="lecture-teacher" />
-        <input type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
+        <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
       </form>
     );
   }

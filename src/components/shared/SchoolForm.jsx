@@ -9,7 +9,7 @@ export default class SchoolForm extends React.Component {
         <input id="school-name" required/>
         <label htmlFor="school-volume">Число учащихся</label>
         <input id="school-volume" required/>
-        <input type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
+        <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
       </form>
     )
   }

@@ -12,7 +12,7 @@ export default class LectureData extends React.Component {
       || !this.props.lecture.teacher
       || this.props.lecture.school.length == 0
     ) {
-      return null;
+      return (<div></div>);
     }
 
     return (

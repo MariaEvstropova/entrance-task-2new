@@ -11,7 +11,7 @@ export default class ClassroomForm extends React.Component {
         <input id="classroom-volume" required/>
         <label htmlFor="classroom-location">Местоположение</label>
         <input id="classroom-location" required/>
-        <input type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
+        <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
       </form>
     )
   }
