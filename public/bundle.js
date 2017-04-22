@@ -7121,6 +7121,8 @@ var LOAD_SCHOOLS_SUCCESS = exports.LOAD_SCHOOLS_SUCCESS = 'LOAD_SCHOOLS_SUCCESS'
 
 var LOAD_LECTURES_FOR_CLASSROOM_SUCCESS = exports.LOAD_LECTURES_FOR_CLASSROOM_SUCCESS = 'LOAD_LECTURES_FOR_CLASSROOM_SUCCESS';
 
+var LOAD_LECTURES_FOR_SCHOOL_SUCCESS = exports.LOAD_LECTURES_FOR_SCHOOL_SUCCESS = 'LOAD_LECTURES_FOR_SCHOOL_SUCCESS';
+
 /***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -28867,6 +28869,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.loadSchools = loadSchools;
 exports.loadSchoolsSuccess = loadSchoolsSuccess;
+exports.loadLecturesForSchool = loadLecturesForSchool;
+exports.loadLecturesForSchoolSuccess = loadLecturesForSchoolSuccess;
 
 var _superagent = __webpack_require__(69);
 
@@ -28900,6 +28904,33 @@ function loadSchoolsSuccess(schools) {
   return {
     type: types.LOAD_SCHOOLS_SUCCESS,
     schools: schools
+  };
+}
+
+function loadLecturesForSchool(schoolId, fromDate, toDate) {
+  return function (dispatch) {
+    return _superagent2.default.get('/v1/lectures/school/' + schoolId).query({ from: fromDate, to: toDate }).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        var result = {
+          schoolId: schoolId,
+          lectures: data.message
+        };
+        dispatch(loadLecturesForSchoolSuccess(result));
+      } else {
+        throw new Error('Get lectures for school from db error');
+      }
+    }).catch(function (error) {
+      throw new Error(error);
+    });
+  };
+}
+
+function loadLecturesForSchoolSuccess(result) {
+  return {
+    type: types.LOAD_LECTURES_FOR_SCHOOL_SUCCESS,
+    data: result
   };
 }
 
@@ -29234,6 +29265,7 @@ exports.default = (0, _reactRedux.connect)(mapStateToProps)(LecturePage);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.SchoolPage = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -29241,7 +29273,35 @@ var _react = __webpack_require__(4);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _redux = __webpack_require__(42);
+
+var _reactRedux = __webpack_require__(34);
+
+var _SchoolData = __webpack_require__(410);
+
+var _SchoolData2 = _interopRequireDefault(_SchoolData);
+
+var _SchoolForm = __webpack_require__(250);
+
+var _SchoolForm2 = _interopRequireDefault(_SchoolForm);
+
+var _DateForm = __webpack_require__(247);
+
+var _DateForm2 = _interopRequireDefault(_DateForm);
+
+var _LecturesTable = __webpack_require__(248);
+
+var _LecturesTable2 = _interopRequireDefault(_LecturesTable);
+
+var _schoolActions = __webpack_require__(234);
+
+var schoolActions = _interopRequireWildcard(_schoolActions);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -29249,22 +29309,65 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var SchoolPage = function (_React$Component) {
+var SchoolPage = exports.SchoolPage = function (_React$Component) {
   _inherits(SchoolPage, _React$Component);
 
-  function SchoolPage() {
+  function SchoolPage(props) {
     _classCallCheck(this, SchoolPage);
 
-    return _possibleConstructorReturn(this, (SchoolPage.__proto__ || Object.getPrototypeOf(SchoolPage)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (SchoolPage.__proto__ || Object.getPrototypeOf(SchoolPage)).call(this, props));
+
+    _this.state = {
+      dateFrom: '',
+      dateTo: ''
+    };
+
+    _this.showLectures = _this.showLectures.bind(_this);
+    _this.updateState = _this.updateState.bind(_this);
+    _this.props.actions.loadLecturesForSchool(_this.props.match.params.id, _this.state.dateFrom, _this.state.dateTo);
+    return _this;
   }
 
   _createClass(SchoolPage, [{
+    key: 'showLectures',
+    value: function showLectures(event) {
+      event.preventDefault();
+      this.props.actions.loadLecturesForSchool(this.props.match.params.id, this.state.dateFrom, this.state.dateTo);
+    }
+  }, {
+    key: 'updateState',
+    value: function updateState(event) {
+      var name = event.target.name;
+      var value = event.target.value;
+
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
         'div',
-        null,
-        'School page'
+        { className: 'main-content' },
+        _react2.default.createElement(
+          'section',
+          { className: 'info' },
+          _react2.default.createElement(_SchoolData2.default, { school: this.props.school }),
+          _react2.default.createElement(_SchoolForm2.default, null),
+          _react2.default.createElement(
+            'div',
+            { className: 'school-lectures' },
+            _react2.default.createElement(
+              'h1',
+              { className: 'title' },
+              '\u041B\u0435\u043A\u0446\u0438\u0438 \u0434\u043B\u044F \u0448\u043A\u043E\u043B\u044B'
+            ),
+            _react2.default.createElement(_DateForm2.default, {
+              onChange: this.updateState,
+              onShowLectures: this.showLectures
+            }),
+            _react2.default.createElement(_LecturesTable2.default, { lectures: this.props.school.lectures })
+          )
+        )
       );
     }
   }]);
@@ -29272,7 +29375,31 @@ var SchoolPage = function (_React$Component) {
   return SchoolPage;
 }(_react2.default.Component);
 
-exports.default = SchoolPage;
+function mapStateToProps(state, ownProps) {
+  var school = {
+    name: '',
+    _id: null,
+    number_of_students: null,
+    lectures: []
+  };
+  var schoolId = ownProps.match.params.id;
+  if (state.schools.length > 0) {
+    school = Object.assign({}, state.schools.find(function (school) {
+      return school['_id'] == schoolId;
+    }));
+  }
+  return {
+    school: school
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: (0, _redux.bindActionCreators)(schoolActions, dispatch)
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SchoolPage);
 
 /***/ }),
 /* 239 */
@@ -30032,7 +30159,7 @@ var LecturesTable = function (_React$Component) {
         return _react2.default.createElement(
           'p',
           { className: 'info-message' },
-          '\u0418\u0437\u0432\u0438\u043D\u0438\u0442\u0435, \u0432 \u0437\u0430\u0434\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0442\u0435\u0440\u0432\u0430\u043B \u0434\u0430\u0442 \u043B\u0435\u043A\u0446\u0438\u0439 \u0432 \u0430\u0443\u0434\u0438\u0442\u043E\u0440\u0438\u0438 \u043D\u0435\u0442'
+          '\u0418\u0437\u0432\u0438\u043D\u0438\u0442\u0435, \u0432 \u0437\u0430\u0434\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0442\u0435\u0440\u0432\u0430\u043B \u0434\u0430\u0442 \u043B\u0435\u043A\u0446\u0438\u0439 \u043D\u0435\u0442'
         );
       }
       var tableData = this.prepareLectureData(this.props.lectures);
@@ -30392,6 +30519,15 @@ function schoolReducer() {
   switch (action.type) {
     case types.LOAD_SCHOOLS_SUCCESS:
       return action.schools;
+    case types.LOAD_LECTURES_FOR_SCHOOL_SUCCESS:
+      var result = state.map(function (school) {
+        if (school['_id'] != action.data.schoolId) {
+          return Object.assign({}, school);
+        } else {
+          return Object.assign({}, school, { lectures: action.data.lectures });
+        }
+      });
+      return result;
     default:
       return state;
   }
@@ -47057,6 +47193,102 @@ var valueEqual = function valueEqual(a, b) {
 };
 
 exports.default = valueEqual;
+
+/***/ }),
+/* 410 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SchoolData = function (_React$Component) {
+  _inherits(SchoolData, _React$Component);
+
+  function SchoolData() {
+    _classCallCheck(this, SchoolData);
+
+    return _possibleConstructorReturn(this, (SchoolData.__proto__ || Object.getPrototypeOf(SchoolData)).apply(this, arguments));
+  }
+
+  _createClass(SchoolData, [{
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        "div",
+        { className: "school-info" },
+        _react2.default.createElement(
+          "h1",
+          { className: "title" },
+          "\u0428\u043A\u043E\u043B\u0430"
+        ),
+        _react2.default.createElement(
+          "table",
+          { className: "school-table" },
+          _react2.default.createElement(
+            "tbody",
+            null,
+            _react2.default.createElement(
+              "tr",
+              null,
+              _react2.default.createElement(
+                "th",
+                null,
+                "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435"
+              ),
+              _react2.default.createElement(
+                "td",
+                null,
+                this.props.school.name
+              )
+            ),
+            _react2.default.createElement(
+              "tr",
+              null,
+              _react2.default.createElement(
+                "th",
+                null,
+                "\u0427\u0438\u0441\u043B\u043E \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u043E\u0432"
+              ),
+              _react2.default.createElement(
+                "td",
+                null,
+                this.props.school.number_of_students,
+                " \u0447\u0435\u043B."
+              )
+            )
+          )
+        ),
+        _react2.default.createElement(
+          "a",
+          { href: "", className: "delete" },
+          "\u0423\u0434\u0430\u043B\u0438\u0442\u044C"
+        )
+      );
+    }
+  }]);
+
+  return SchoolData;
+}(_react2.default.Component);
+
+exports.default = SchoolData;
 
 /***/ })
 /******/ ]);

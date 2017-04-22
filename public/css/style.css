@@ -133,6 +133,7 @@ a:hover {
   display: inline-block;
   width: inherit;
 }
+.school-lectures input[type="date"],
 .classroom-lectures input[type="date"] {
   margin-right: 5px;
 }
@@ -309,6 +310,7 @@ section form input[type="submit"]:hover {
   .lecture-table tr:not(.finished) td:not(:first-child):hover {
     background-color: rgba(254, 225, 51, 0.3);
   }
+  .school-lectures input[type="date"],
   .classroom-lectures input[type="date"] {
     margin-right: 0;
   }

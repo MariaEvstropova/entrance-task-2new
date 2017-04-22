@@ -37,7 +37,7 @@ export default class LecturesTable extends React.Component {
       return <div></div>
     }
     if (this.props.lectures.length == 0) {
-      return <p className="info-message">Извините, в заданный интервал дат лекций в аудитории нет</p>
+      return <p className="info-message">Извините, в заданный интервал дат лекций нет</p>
     }
     let tableData = this.prepareLectureData(this.props.lectures);
     let rows = tableData.map((data, index) => {
