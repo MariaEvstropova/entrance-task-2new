@@ -324,7 +324,10 @@ module.exports.get_lectures_for_classroom = function(req, res) {
     find.date = date;
   }
 
-  return Lecture.find(find).exec()
+  return Lecture.find(find)
+  .populate({path: 'classroom', model: Classroom})
+  .populate({path: 'school', model: School})
+  .exec()
   .then((data) => {
     return res.json({
       success: true,
@@ -376,7 +379,10 @@ module.exports.get_lectures_for_school = function(req, res) {
     find.date = date;
   }
 
-  return Lecture.find(find).exec()
+  return Lecture.find(find)
+  .populate({path: 'classroom', model: Classroom})
+  .populate({path: 'school', model: School})
+  .exec()
   .then((data) => {
     return res.json({
       success: true,

@@ -18,6 +18,7 @@ export class ClassroomPage extends React.Component {
 
     this.showLectures = this.showLectures.bind(this);
     this.updateState = this.updateState.bind(this);
+    this.props.actions.loadLecturesForClassroom(this.props.match.params.id, this.state.dateFrom, this.state.dateTo);
   }
 
   showLectures(event) {
@@ -44,8 +45,9 @@ export class ClassroomPage extends React.Component {
             <h1 className="title">Лекции в аудитории</h1>
             <DateForm
               onChange={this.updateState}
-              onShowLectures={this.showLectures}/>
-
+              onShowLectures={this.showLectures}
+            />
+            <LecturesTable lectures={this.props.classroom.lectures} />
           </div>
         </section>
       </div>

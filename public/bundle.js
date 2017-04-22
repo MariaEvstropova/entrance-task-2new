@@ -28965,6 +28965,7 @@ var ClassroomPage = exports.ClassroomPage = function (_React$Component) {
 
     _this.showLectures = _this.showLectures.bind(_this);
     _this.updateState = _this.updateState.bind(_this);
+    _this.props.actions.loadLecturesForClassroom(_this.props.match.params.id, _this.state.dateFrom, _this.state.dateTo);
     return _this;
   }
 
@@ -29003,7 +29004,9 @@ var ClassroomPage = exports.ClassroomPage = function (_React$Component) {
             ),
             _react2.default.createElement(_DateForm2.default, {
               onChange: this.updateState,
-              onShowLectures: this.showLectures })
+              onShowLectures: this.showLectures
+            }),
+            _react2.default.createElement(_LecturesTable2.default, { lectures: this.props.classroom.lectures })
           )
         )
       );
@@ -29892,6 +29895,10 @@ var _react = __webpack_require__(5);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _moment = __webpack_require__(0);
+
+var _moment2 = _interopRequireDefault(_moment);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29910,24 +29917,24 @@ var DateForm = function (_React$Component) {
   }
 
   _createClass(DateForm, [{
-    key: "render",
+    key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        "form",
+        'form',
         null,
         _react2.default.createElement(
-          "label",
-          { htmlFor: "calendar-from" },
-          "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043D\u0430\u0447\u0438\u043D\u0430\u044F \u0441 \u0434\u0430\u0442\u044B"
+          'label',
+          { htmlFor: 'calendar-from' },
+          '\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043D\u0430\u0447\u0438\u043D\u0430\u044F \u0441 \u0434\u0430\u0442\u044B'
         ),
-        _react2.default.createElement("input", { type: "date", id: "calendar-from", name: "dateFrom", onChange: this.props.onChange }),
+        _react2.default.createElement('input', { type: 'date', id: 'calendar-from', name: 'dateFrom', onChange: this.props.onChange }),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "calendar-to" },
-          "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0437\u0430\u043A\u0430\u043D\u0447\u0438\u0432\u0430\u044F \u0434\u0430\u0442\u043E\u0439"
+          'label',
+          { htmlFor: 'calendar-to' },
+          '\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0437\u0430\u043A\u0430\u043D\u0447\u0438\u0432\u0430\u044F \u0434\u0430\u0442\u043E\u0439'
         ),
-        _react2.default.createElement("input", { type: "date", id: "calendar-to", name: "dateTo", onChange: this.props.onChange }),
-        _react2.default.createElement("input", { type: "submit", value: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C", onClick: this.props.onShowLectures })
+        _react2.default.createElement('input', { type: 'date', id: 'calendar-to', name: 'dateTo', onChange: this.props.onChange }),
+        _react2.default.createElement('input', { type: 'submit', value: '\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C', onClick: this.props.onShowLectures })
       );
     }
   }]);
@@ -29947,13 +29954,22 @@ exports.default = DateForm;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LecturesTable = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(5);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactRedux = __webpack_require__(26);
+var _moment = __webpack_require__(0);
+
+var _moment2 = _interopRequireDefault(_moment);
+
+var _TableRow = __webpack_require__(409);
+
+var _TableRow2 = _interopRequireDefault(_TableRow);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29963,17 +29979,117 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var LecturesTable = exports.LecturesTable = function (_React$Component) {
+var LecturesTable = function (_React$Component) {
   _inherits(LecturesTable, _React$Component);
 
-  function LecturesTable() {
+  function LecturesTable(props) {
     _classCallCheck(this, LecturesTable);
 
-    return _possibleConstructorReturn(this, (LecturesTable.__proto__ || Object.getPrototypeOf(LecturesTable)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (LecturesTable.__proto__ || Object.getPrototypeOf(LecturesTable)).call(this, props));
+
+    _this.prepareLectureData = _this.prepareLectureData.bind(_this);
+    return _this;
   }
+
+  _createClass(LecturesTable, [{
+    key: 'prepareLectureData',
+    value: function prepareLectureData(lectures) {
+      var tableData = lectures.map(function (lecture) {
+        var data = {};
+
+        data.lecture = lecture.name;
+        data.teacher = lecture.teacher;
+        data.date = (0, _moment2.default)(lecture.date).format('YYYY-MM-DD HH:mm');
+        data.place = lecture.classroom.name;
+        if (lecture.school.length < 2) {
+          data.school = lecture.school[0].name;
+        } else {
+          data.school = [];
+          lecture.school.forEach(function (school) {
+            data.school.push(school.name);
+          });
+        }
+
+        return data;
+      });
+
+      return tableData;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      if (!this.props.lectures) {
+        return _react2.default.createElement('div', null);
+      }
+      if (this.props.lectures.length == 0) {
+        return _react2.default.createElement(
+          'p',
+          { className: 'info-message' },
+          '\u0418\u0437\u0432\u0438\u043D\u0438\u0442\u0435, \u0432 \u0437\u0430\u0434\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0442\u0435\u0440\u0432\u0430\u043B \u0434\u0430\u0442 \u043B\u0435\u043A\u0446\u0438\u0439 \u0432 \u0430\u0443\u0434\u0438\u0442\u043E\u0440\u0438\u0438 \u043D\u0435\u0442'
+        );
+      }
+      var tableData = this.prepareLectureData(this.props.lectures);
+      var rows = tableData.map(function (data, index) {
+        return _react2.default.createElement(_TableRow2.default, _extends({}, data, { key: index }));
+      });
+      return _react2.default.createElement(
+        'table',
+        { className: 'lecture-table' },
+        _react2.default.createElement(
+          'colgroup',
+          null,
+          _react2.default.createElement('col', { width: '20%' }),
+          _react2.default.createElement('col', { width: '20%' }),
+          _react2.default.createElement('col', { width: '20%' }),
+          _react2.default.createElement('col', { width: '20%' }),
+          _react2.default.createElement('col', { width: '20%' })
+        ),
+        _react2.default.createElement(
+          'thead',
+          null,
+          _react2.default.createElement(
+            'tr',
+            null,
+            _react2.default.createElement(
+              'th',
+              null,
+              '\u0428\u043A\u043E\u043B\u0430'
+            ),
+            _react2.default.createElement(
+              'th',
+              null,
+              '\u041B\u0435\u043A\u0446\u0438\u044F'
+            ),
+            _react2.default.createElement(
+              'th',
+              null,
+              '\u041B\u0435\u043A\u0442\u043E\u0440'
+            ),
+            _react2.default.createElement(
+              'th',
+              null,
+              '\u0414\u0430\u0442\u0430'
+            ),
+            _react2.default.createElement(
+              'th',
+              null,
+              '\u041C\u0435\u0441\u0442\u043E'
+            )
+          )
+        ),
+        _react2.default.createElement(
+          'tbody',
+          null,
+          rows
+        )
+      );
+    }
+  }]);
 
   return LecturesTable;
 }(_react2.default.Component);
+
+exports.default = LecturesTable;
 
 /***/ }),
 /* 249 */
@@ -46854,6 +46970,86 @@ var valueEqual = function valueEqual(a, b) {
 };
 
 exports.default = valueEqual;
+
+/***/ }),
+/* 409 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(5);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var TableRow = function (_React$Component) {
+  _inherits(TableRow, _React$Component);
+
+  function TableRow() {
+    _classCallCheck(this, TableRow);
+
+    return _possibleConstructorReturn(this, (TableRow.__proto__ || Object.getPrototypeOf(TableRow)).apply(this, arguments));
+  }
+
+  _createClass(TableRow, [{
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        "tr",
+        null,
+        _react2.default.createElement(
+          "td",
+          { "data-th": "\u0428\u043A\u043E\u043B\u0430" },
+          Array.isArray(this.props.school) ? this.props.school.map(function (school, index) {
+            return _react2.default.createElement(
+              "div",
+              { className: "sub-row", key: index },
+              school
+            );
+          }) : this.props.school
+        ),
+        _react2.default.createElement(
+          "td",
+          { "data-th": "\u041B\u0435\u043A\u0446\u0438\u044F" },
+          this.props.lecture
+        ),
+        _react2.default.createElement(
+          "td",
+          { "data-th": "\u041B\u0435\u043A\u0442\u043E\u0440" },
+          this.props.teacher
+        ),
+        _react2.default.createElement(
+          "td",
+          { "data-th": "\u0414\u0430\u0442\u0430" },
+          this.props.date
+        ),
+        _react2.default.createElement(
+          "td",
+          { "data-th": "\u041C\u0435\u0441\u0442\u043E" },
+          this.props.place
+        )
+      );
+    }
+  }]);
+
+  return TableRow;
+}(_react2.default.Component);
+
+exports.default = TableRow;
 
 /***/ })
 /******/ ]);

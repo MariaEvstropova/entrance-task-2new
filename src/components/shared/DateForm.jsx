@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 
 export default class DateForm extends React.Component {
   render() {
@@ -7,7 +8,7 @@ export default class DateForm extends React.Component {
         <label htmlFor="calendar-from">Показать начиная с даты</label>
         <input type="date" id="calendar-from" name="dateFrom" onChange={this.props.onChange} />
         <label htmlFor="calendar-to">Показать заканчивая датой</label>
-        <input type="date" id="calendar-to" name="dateTo" onChange={this.props.onChange}/>
+        <input type="date" id="calendar-to" name="dateTo" onChange={this.props.onChange} />
         <input type="submit" value="Показать" onClick={this.props.onShowLectures}/>
       </form>
     );

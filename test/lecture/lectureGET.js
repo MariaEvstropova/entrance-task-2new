@@ -111,7 +111,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(4);
-                res.body.message.should.all.have.deep.property('[0].classroom', classroom1.id);
+                res.body.message.should.all.have.deep.property('[0].classroom._id', classroom1.id);
                 done();
               });
         });
@@ -147,7 +147,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].classroom', classroom1.id);
+                res.body.message.should.all.have.deep.property('[0].classroom._id', classroom1.id);
                 done();
               });
         });
@@ -183,7 +183,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].classroom', classroom1.id);
+                res.body.message.should.all.have.deep.property('[0].classroom._id', classroom1.id);
                 done();
               });
         });
@@ -219,7 +219,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].classroom', classroom1.id);
+                res.body.message.should.all.have.deep.property('[0].classroom._id', classroom1.id);
                 done();
               });
         });
@@ -292,7 +292,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(9);
-                res.body.message.should.all.have.deep.property('[0].school[0]', school1.id);
+                res.body.message.should.all.have.deep.property('[0].school[0]._id', school1.id);
                 done();
               });
         });
@@ -328,7 +328,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].school[0]', school1.id);
+                res.body.message.should.all.have.deep.property('[0].school[0]._id', school1.id);
                 done();
               });
         });
@@ -364,7 +364,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].school[0]', school1.id);
+                res.body.message.should.all.have.deep.property('[0].school[0]._id', school1.id);
                 done();
               });
         });
@@ -400,7 +400,7 @@ describe('Lecture GET', () => {
                 res.body.should.have.property('message');
                 res.body.message.should.be.an('array');
                 res.body.message.length.should.be.eql(2);
-                res.body.message.should.all.have.deep.property('[0].school[0]', school1.id);
+                res.body.message.should.all.have.deep.property('[0].school[0]._id', school1.id);
                 done();
               });
         });

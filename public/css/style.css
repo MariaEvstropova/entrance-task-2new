@@ -53,6 +53,13 @@ a:hover {
   font-weight: bold;
   margin: 20px auto;
 }
+.info-message {
+  font-size: 1.2em;
+  margin: 15px 0;
+  text-transform: uppercase;
+  color: #b2b2b2;
+  text-align: center;
+}
 .sub-title {
   font-size: 1.2em;
   font-weight: bold;
@@ -121,6 +128,9 @@ a:hover {
 .school-lectures input[type="date"] {
   display: inline-block;
   width: inherit;
+}
+.classroom-lectures input[type="date"] {
+  margin-right: 5px;
 }
 .lecture-form label[for="lecture-date"],
 .classroom-lectures label,
@@ -213,8 +223,11 @@ section form input {
 section form input:required {
     box-shadow: none;
 }
-section form input:focus {
+section form input:not([type="submit"]):focus {
   outline: #fee133 auto 1px;
+}
+input[type="submit"]:focus {
+  outline: none;
 }
 .create-new,
 section form input[type="submit"] {
@@ -291,5 +304,8 @@ section form input[type="submit"]:hover {
   }
   .lecture-table tr:not(.finished) td:not(:first-child):hover {
     background-color: rgba(254, 225, 51, 0.3);
+  }
+  .classroom-lectures input[type="date"] {
+    margin-right: 0;
   }
 }
