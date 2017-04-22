@@ -59,6 +59,10 @@ a:hover {
   text-transform: uppercase;
   color: #b2b2b2;
   text-align: center;
+  line-height: 1.5em;
+}
+.lecture-section .info-message {
+  text-align: left;
 }
 .sub-title {
   font-size: 1.2em;

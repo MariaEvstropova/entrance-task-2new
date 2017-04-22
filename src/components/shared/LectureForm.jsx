@@ -2,6 +2,9 @@ import React from 'react';
 
 export default class LecturesForm extends React.Component {
   render() {
+    if (this.props.classrooms.length == 0 || this.props.schools.length == 0) {
+      return <p className="info-message">Для добавления лекции создайте школу и аудиторию</p>
+    }
     return (
       <form id="lecture-form" className="lecture-form">
         <h1>{this.props.type == "create" ? "Создать новую лекцию" : "Изменить лекцию"}</h1>
