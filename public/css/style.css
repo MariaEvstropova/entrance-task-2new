@@ -207,8 +207,14 @@ section form select {
   width: 100%;
   padding: 5px 0;
 }
+section form input {
+  border: 1px solid #D3D3D3;
+}
+section form input:required {
+    box-shadow: none;
+}
 section form input:focus {
-  outline: #fee133 auto 5px;
+  outline: #fee133 auto 1px;
 }
 .create-new,
 section form input[type="submit"] {
