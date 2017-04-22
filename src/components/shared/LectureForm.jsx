@@ -6,7 +6,7 @@ export default class LecturesForm extends React.Component {
       <form id="lecture-form" className="lecture-form">
         <h1>{this.props.type == "create" ? "Создать новую лекцию" : "Изменить лекцию"}</h1>
         <label htmlFor="lecture-name">Название</label>
-        <input id="lecture-name" />
+        <input id="lecture-name" required/>
         <label htmlFor="lecture-classroom">Аудитория</label>
         <select id="lecture-classroom">
           {
@@ -28,9 +28,9 @@ export default class LecturesForm extends React.Component {
           }
         </select>
         <label htmlFor="lecture-date">Дата и время</label>
-        <input type="datetime-local" id="lecture-date" />
+        <input type="datetime-local" id="lecture-date" required/>
         <label htmlFor="lecture-teacher">Преподаватель</label>
-        <input id="lecture-teacher" />
+        <input id="lecture-teacher" required/>
         <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"}/>
       </form>
     );
