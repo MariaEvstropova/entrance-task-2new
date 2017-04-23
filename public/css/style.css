@@ -213,6 +213,18 @@ section form input:not([type="submit"]) {
   box-sizing: border-box;
   color: #7c7b7b;
 }
+::-webkit-input-placeholder {
+  color: #D3D3D3;
+}
+::-moz-placeholder {
+  color: #D3D3D3;
+}
+:-moz-placeholder {
+  color: #D3D3D3;
+}
+:-ms-input-placeholder {
+  color: #D3D3D3;
+}
 section form label {
   padding: 20px 0 10px;
 }

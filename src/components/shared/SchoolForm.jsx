@@ -84,14 +84,14 @@ export class SchoolForm extends React.Component {
         name: this.state.name,
         students: this.state.number_of_students
       });
+      this.setState({
+        name: '',
+        number_of_students: ''
+      });
     } else {
       let update = this._getUpdateData(this.state);
       this.props.actions.updateSchool(update, this.props.id);
     }
-    this.setState({
-      name: '',
-      number_of_students: ''
-    });
   }
 
   render() {
@@ -99,9 +99,9 @@ export class SchoolForm extends React.Component {
       <form id="school-form" className="school-form">
         <h1>{this.props.type == "create" ? "Создать новую школу" : "Изменить школу"}</h1>
         <label htmlFor="school-name">Название</label>
-        <input id="school-name" required name='name' onChange={this.onFormChange} value={this.state.name}/>
-        <label htmlFor="school-students">Число учащихся</label>
-        <input id="school-students" required name='number_of_students' onChange={this.onFormChange} value={this.state.number_of_students}/>
+        <input id="school-name" name='name' onChange={this.onFormChange} value={this.state.name} placeholder='Школа разработки интерфейсов'/>
+        <label htmlFor="school-students">Число учащихся (от 1 до 100)</label>
+        <input id="school-students" name='number_of_students' onChange={this.onFormChange} value={this.state.number_of_students} placeholder='50'/>
         <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"} onClick={this.handleSubmit}/>
       </form>
     )

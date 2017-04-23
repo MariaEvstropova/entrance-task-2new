@@ -86,15 +86,15 @@ export class ClassroomForm extends React.Component {
     }
     if (this.props.type == 'create') {
       this.props.actions.createClassroom(this.state);
+      this.setState({
+        name: '',
+        volume: '',
+        location: ''
+      });
     } else {
       let update = this._getUpdateData(this.state);
       this.props.actions.updateClassroom(update, this.props.id);
     }
-    this.setState({
-      name: '',
-      volume: '',
-      location: ''
-    });
   }
 
   render() {
@@ -102,11 +102,11 @@ export class ClassroomForm extends React.Component {
       <form id="classroom-form" className="classroom-form">
         <h1>{this.props.type == "create" ? "Создать новую аудиторию" : "Изменить аудиторию"}</h1>
         <label htmlFor="classroom-name">Название</label>
-        <input id="classroom-name" required name='name' onChange={this.onFormChange} value={this.state.name}/>
-        <label htmlFor="classroom-volume">Вместимость</label>
-        <input id="classroom-volume" required name='volume' onChange={this.onFormChange} value={this.state.volume}/>
+        <input id="classroom-name" name='name' onChange={this.onFormChange} value={this.state.name} placeholder='Синий кит'/>
+        <label htmlFor="classroom-volume">Вместимость (от 100 до 1000)</label>
+        <input id="classroom-volume" name='volume' onChange={this.onFormChange} value={this.state.volume} placeholder='120'/>
         <label htmlFor="classroom-location">Местоположение</label>
-        <input id="classroom-location" required name='location' onChange={this.onFormChange} value={this.state.location}/>
+        <input id="classroom-location" name='location' onChange={this.onFormChange} value={this.state.location} placeholder='Первый этаж'/>
         <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"} onClick={this.handleSubmit}/>
       </form>
     )

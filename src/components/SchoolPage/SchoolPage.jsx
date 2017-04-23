@@ -72,12 +72,7 @@ export class SchoolPage extends React.Component {
 }
 
 function mapStateToProps(state, ownProps) {
-  let school = {
-    name: '',
-    _id: null,
-    number_of_students: '',
-    lectures: []
-  };
+  let school = {};
   const schoolId = ownProps.match.params.id;
   if (state.schools.length > 0) {
     school = Object.assign({}, state.schools.find((school) => { return school['_id'] == schoolId }));

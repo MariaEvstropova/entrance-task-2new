@@ -92,16 +92,16 @@ export class LecturesForm extends React.Component {
     }
     if (this.props.type == "create") {
       this.props.actions.createLecture(this.state);
+      this.setState({
+        name: '',
+        classroom: 'default',
+        schools: ['default'],
+        teacher: ''
+      });
     } else {
       let update = this._getUpdateData(this.state);
       this.props.actions.updateLecture(update, this.props.id);
     }
-    this.setState({
-      name: '',
-      classroom: 'default',
-      schools: ['default'],
-      teacher: ''
-    });
   }
 
   _getUpdateData(state) {
@@ -163,7 +163,7 @@ export class LecturesForm extends React.Component {
       <form id="lecture-form" className="lecture-form">
         <h1>{this.props.type == "create" ? "Создать новую лекцию" : "Изменить лекцию"}</h1>
         <label htmlFor="lecture-name">Название</label>
-        <input name="name" id="lecture-name" required onChange={this.onChange} value={this.state.name}/>
+        <input name="name" id="lecture-name" onChange={this.onChange} value={this.state.name} placeholder='Адаптивная вёрстка'/>
         <label htmlFor="lecture-classroom">Аудитория</label>
         <select name="classroom" id="lecture-classroom" onChange={this.onChange} value={this.state.classroom}>
           <option disabled value='default'>Выберите аудиторию</option>
@@ -189,7 +189,7 @@ export class LecturesForm extends React.Component {
         <label htmlFor="lecture-date">Дата и время</label>
         <input name="date" type="datetime-local" id="lecture-date" required onChange={this.onChange} />
         <label htmlFor="lecture-teacher">Преподаватель</label>
-        <input name="teacher" id="lecture-teacher" required onChange={this.onChange} value={this.state.teacher}/>
+        <input name="teacher" id="lecture-teacher" onChange={this.onChange} value={this.state.teacher} placeholder='Иванов'/>
         <input className="change" type="submit" value={this.props.type == "create" ? "Создать" : "Изменить"} onClick={this.onSubmit}/>
       </form>
     );
