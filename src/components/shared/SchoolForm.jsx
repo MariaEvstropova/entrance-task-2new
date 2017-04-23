@@ -79,8 +79,19 @@ export class SchoolForm extends React.Component {
       alert(message);
       return;
     }
-    let update = this._getUpdateData(this.state);
-    this.props.actions.updateSchool(update, this.props.id);
+    if (this.props.type == 'create') {
+      this.props.actions.createSchool({
+        name: this.state.name,
+        students: this.state.number_of_students
+      });
+    } else {
+      let update = this._getUpdateData(this.state);
+      this.props.actions.updateSchool(update, this.props.id);
+    }
+    this.setState({
+      name: '',
+      number_of_students: ''
+    });
   }
 
   render() {

@@ -18,6 +18,7 @@ export class SchoolPage extends React.Component {
 
     this.showLectures = this.showLectures.bind(this);
     this.updateState = this.updateState.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     this.props.actions.loadLecturesForSchool(this.props.match.params.id, this.state.dateFrom, this.state.dateTo);
   }
 
@@ -35,11 +36,22 @@ export class SchoolPage extends React.Component {
     });
   }
 
+  handleDelete(event) {
+    event.preventDefault();
+    this.props.actions.deleteSchool(this.props.match.params.id);
+  }
+
   render() {
+    if (Object.keys(this.props.school).length === 0) {
+      return <p className="info-message">Извините, такой школы нет</p>;
+    }
     return (
       <div className="main-content">
         <section className="info">
-          <SchoolData school={this.props.school} />
+          <SchoolData
+            school={this.props.school}
+            onClick={this.handleDelete}
+          />
           <SchoolForm
             id={this.props.match.params.id}
             name={this.props.school.name}

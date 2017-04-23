@@ -17,7 +17,7 @@ export default class SchoolData extends React.Component {
             </tr>
           </tbody>
         </table>
-        <a href="" className="delete">Удалить</a>
+        <a href="" className="delete" onClick={this.props.onClick}>Удалить</a>
       </div>
     );
   }

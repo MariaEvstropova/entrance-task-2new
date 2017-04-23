@@ -94,3 +94,60 @@ export function updateSchoolSuccess(result) {
     data: result
   };
 }
+
+export function createSchool(school) {
+  return function(dispatch) {
+    return request
+    .post('/v1/schools/')
+    .send(school)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(createSchoolSuccess(data.message));
+      } else {
+        throw new Error(`Create school error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function createSchoolSuccess(result) {
+  return {
+    type: types.CREATE_SCHOOL_SUCCESS,
+    school: result
+  };
+}
+
+export function deleteSchool(id) {
+  return function(dispatch) {
+    return request
+    .delete(`/v1/schools/${id}`)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(deleteSchoolSuccess(id));
+      } else {
+        throw new Error(`Delete school error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function deleteSchoolSuccess(id) {
+  return {
+    type: types.DELETE_SCHOOL_SUCCESS,
+    schoolId: id
+  };
+}
