@@ -50,7 +50,7 @@ export default class LectureData extends React.Component {
             </tr>
           </tbody>
         </table>
-        <a href="" className="delete">Удалить</a>
+        <a href="" className="delete" onClick={this.props.onDelete}>Удалить</a>
       </div>
     );
   }

@@ -11,6 +11,10 @@ export default function lectureReducer(state = initialState.lectures, action) {
       return [...state.filter((lecture) => {
         return lecture._id !== action.lectureId
       }), Object.assign({}, action.lecture)];
+    case types.DELETE_LECTURE_SUCCESS:
+      return [...state.filter((lecture) => {
+        return lecture._id !== action.lectureId
+      })];
     default:
       return state;
   }

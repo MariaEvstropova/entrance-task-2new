@@ -39,7 +39,7 @@ export function createLecture(lecture) {
     })
     .then((data) => {
       if (data.success) {
-        dispatch(createLecturesSuccess(data.message));
+        dispatch(createLectureSuccess(data.message));
       } else {
         throw new Error(`Can not create new lecture. Reason: ${data.error.message}`);
       }
@@ -51,7 +51,7 @@ export function createLecture(lecture) {
   }
 }
 
-export function createLecturesSuccess(lecture) {
+export function createLectureSuccess(lecture) {
   return {
     type: types.CREATE_LECTURE_SUCCESS,
     lecture: lecture
@@ -68,7 +68,7 @@ export function updateLecture(update, id) {
     })
     .then((data) => {
       if (data.success) {
-        dispatch(updateLecturesSuccess(data.message, id));
+        dispatch(updateLectureSuccess(data.message, id));
       } else {
         throw new Error(`Can not update lecture. Reason: ${data.error.message}`);
       }
@@ -80,10 +80,38 @@ export function updateLecture(update, id) {
   }
 }
 
-export function updateLecturesSuccess(lecture, lectureId) {
+export function updateLectureSuccess(lecture, lectureId) {
   return {
     type: types.UPDATE_LECTURE_SUCCESS,
     lecture: lecture,
     lectureId: lectureId
+  };
+}
+
+export function deleteLecture(id) {
+  return function(dispatch) {
+    return request
+    .delete(`/v1/lectures/${id}`)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(deleteLectureSuccess(id));
+      } else {
+        throw new Error(`Can not delete lecture. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function deleteLectureSuccess(id) {
+  return {
+    type: types.DELETE_LECTURE_SUCCESS,
+    lectureId: id
   };
 }

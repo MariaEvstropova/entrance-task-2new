@@ -7145,6 +7145,8 @@ var CREATE_LECTURE_SUCCESS = exports.CREATE_LECTURE_SUCCESS = 'CREATE_LECTURE_SU
 
 var UPDATE_LECTURE_SUCCESS = exports.UPDATE_LECTURE_SUCCESS = 'UPDATE_LECTURE_SUCCESS';
 
+var DELETE_LECTURE_SUCCESS = exports.DELETE_LECTURE_SUCCESS = 'DELETE_LECTURE_SUCCESS';
+
 /***/ }),
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -13143,9 +13145,11 @@ Object.defineProperty(exports, "__esModule", {
 exports.loadLectures = loadLectures;
 exports.loadLecturesSuccess = loadLecturesSuccess;
 exports.createLecture = createLecture;
-exports.createLecturesSuccess = createLecturesSuccess;
+exports.createLectureSuccess = createLectureSuccess;
 exports.updateLecture = updateLecture;
-exports.updateLecturesSuccess = updateLecturesSuccess;
+exports.updateLectureSuccess = updateLectureSuccess;
+exports.deleteLecture = deleteLecture;
+exports.deleteLectureSuccess = deleteLectureSuccess;
 
 var _superagent = __webpack_require__(69);
 
@@ -13189,7 +13193,7 @@ function createLecture(lecture) {
       return response.body;
     }).then(function (data) {
       if (data.success) {
-        dispatch(createLecturesSuccess(data.message));
+        dispatch(createLectureSuccess(data.message));
       } else {
         throw new Error('Can not create new lecture. Reason: ' + data.error.message);
       }
@@ -13200,7 +13204,7 @@ function createLecture(lecture) {
   };
 }
 
-function createLecturesSuccess(lecture) {
+function createLectureSuccess(lecture) {
   return {
     type: types.CREATE_LECTURE_SUCCESS,
     lecture: lecture
@@ -13213,7 +13217,7 @@ function updateLecture(update, id) {
       return response.body;
     }).then(function (data) {
       if (data.success) {
-        dispatch(updateLecturesSuccess(data.message, id));
+        dispatch(updateLectureSuccess(data.message, id));
       } else {
         throw new Error('Can not update lecture. Reason: ' + data.error.message);
       }
@@ -13224,11 +13228,35 @@ function updateLecture(update, id) {
   };
 }
 
-function updateLecturesSuccess(lecture, lectureId) {
+function updateLectureSuccess(lecture, lectureId) {
   return {
     type: types.UPDATE_LECTURE_SUCCESS,
     lecture: lecture,
     lectureId: lectureId
+  };
+}
+
+function deleteLecture(id) {
+  return function (dispatch) {
+    return _superagent2.default.delete('/v1/lectures/' + id).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        dispatch(deleteLectureSuccess(id));
+      } else {
+        throw new Error('Can not delete lecture. Reason: ' + data.error.message);
+      }
+    }).catch(function (error) {
+      alert(error.message);
+      throw new Error(error);
+    });
+  };
+}
+
+function deleteLectureSuccess(id) {
+  return {
+    type: types.DELETE_LECTURE_SUCCESS,
+    lectureId: id
   };
 }
 
@@ -29711,6 +29739,12 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRedux = __webpack_require__(22);
 
+var _redux = __webpack_require__(27);
+
+var _lectureActions = __webpack_require__(72);
+
+var lectureActions = _interopRequireWildcard(_lectureActions);
+
 var _LectureData = __webpack_require__(249);
 
 var _LectureData2 = _interopRequireDefault(_LectureData);
@@ -29718,6 +29752,8 @@ var _LectureData2 = _interopRequireDefault(_LectureData);
 var _LectureForm = __webpack_require__(75);
 
 var _LectureForm2 = _interopRequireDefault(_LectureForm);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29730,22 +29766,41 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var LecturePage = exports.LecturePage = function (_React$Component) {
   _inherits(LecturePage, _React$Component);
 
-  function LecturePage() {
+  function LecturePage(props) {
     _classCallCheck(this, LecturePage);
 
-    return _possibleConstructorReturn(this, (LecturePage.__proto__ || Object.getPrototypeOf(LecturePage)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (LecturePage.__proto__ || Object.getPrototypeOf(LecturePage)).call(this, props));
+
+    _this.handleDelete = _this.handleDelete.bind(_this);
+    return _this;
   }
 
   _createClass(LecturePage, [{
+    key: 'handleDelete',
+    value: function handleDelete(event) {
+      event.preventDefault();
+      this.props.actions.deleteLecture(this.props.match.params.id);
+    }
+  }, {
     key: 'render',
     value: function render() {
+      if (Object.keys(this.props.lecture).length === 0) {
+        return _react2.default.createElement(
+          'p',
+          { className: 'info-message' },
+          '\u0418\u0437\u0432\u0438\u043D\u0438\u0442\u0435, \u0442\u0430\u043A\u043E\u0439 \u043B\u0435\u043A\u0446\u0438\u0438 \u043D\u0435\u0442'
+        );
+      }
       return _react2.default.createElement(
         'div',
         { className: 'main-content' },
         _react2.default.createElement(
           'section',
           { className: 'info' },
-          _react2.default.createElement(_LectureData2.default, { lecture: this.props.lecture }),
+          _react2.default.createElement(_LectureData2.default, {
+            lecture: this.props.lecture,
+            onDelete: this.handleDelete
+          }),
           _react2.default.createElement(_LectureForm2.default, {
             id: this.props.match.params.id,
             lecture: this.props.lecture,
@@ -29761,14 +29816,7 @@ var LecturePage = exports.LecturePage = function (_React$Component) {
 }(_react2.default.Component);
 
 function mapStateToProps(state, ownProps) {
-  var lecture = {
-    name: '',
-    _id: null,
-    classoom: null,
-    school: [],
-    teacher: '',
-    date: null
-  };
+  var lecture = {};
   var lectureId = ownProps.match.params.id;
   if (state.lectures.length > 0) {
     lecture = Object.assign({}, state.lectures.find(function (lecture) {
@@ -29782,7 +29830,13 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps)(LecturePage);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: (0, _redux.bindActionCreators)(lectureActions, dispatch)
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(LecturePage);
 
 /***/ }),
 /* 241 */
@@ -30529,7 +30583,7 @@ var LectureData = function (_React$Component) {
         ),
         _react2.default.createElement(
           'a',
-          { href: '', className: 'delete' },
+          { href: '', className: 'delete', onClick: this.props.onDelete },
           '\u0423\u0434\u0430\u043B\u0438\u0442\u044C'
         )
       );
@@ -30801,6 +30855,10 @@ function lectureReducer() {
       return [].concat(_toConsumableArray(state.filter(function (lecture) {
         return lecture._id !== action.lectureId;
       })), [Object.assign({}, action.lecture)]);
+    case types.DELETE_LECTURE_SUCCESS:
+      return [].concat(_toConsumableArray(state.filter(function (lecture) {
+        return lecture._id !== action.lectureId;
+      })));
     default:
       return state;
   }
