@@ -7,6 +7,10 @@ export default function lectureReducer(state = initialState.lectures, action) {
       return action.lectures;
     case types.CREATE_LECTURE_SUCCESS:
       return [...state, action.lecture];
+    case types.UPDATE_LECTURE_SUCCESS:
+      return [...state.filter((lecture) => {
+        return lecture._id !== action.lectureId
+      }), Object.assign({}, action.lecture)];
     default:
       return state;
   }

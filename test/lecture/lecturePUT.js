@@ -544,11 +544,16 @@ describe('Lecture PUT', () => {
                 res.body.message.should.be.a('object');
                 res.body.message.should.have.property('name', 'Неопределенные вычисления');
                 res.body.message.should.have.property('date', '2017-07-04T16:00:00.000Z');
-                res.body.message.should.have.property('classroom', classroom2.id);
+                res.body.message.should.have.property('classroom');
+                res.body.message.classroom.should.be.a('object');
+                res.body.message.classroom.should.have.property('name', 'Черный кот');
+                res.body.message.classroom.should.have.property('volume', 100);
+                res.body.message.classroom.should.have.property('location', 'Крыша');
                 res.body.message.should.have.property('school');
                 res.body.message.school.should.be.an('array');
                 res.body.message.school.length.should.be.eql(2);
-                res.body.message.school.should.include.members([school1.id, school2.id]);
+                res.body.message.school.should.have.deep.property('[0].name', 'Школа мобильной разработки');
+                res.body.message.school.should.have.deep.property('[1].name', 'Школа мобильного дизайна');
                 res.body.message.should.have.property('teacher', 'Петров');
                 done();
               });

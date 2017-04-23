@@ -11,6 +11,7 @@ export class LecturePage extends React.Component {
           <LectureData lecture={this.props.lecture} />
           <LectureForm
             id={this.props.match.params.id}
+            lecture={this.props.lecture}
             classrooms={this.props.classrooms}
             schools={this.props.schools}
           />

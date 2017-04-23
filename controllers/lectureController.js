@@ -245,7 +245,11 @@ module.exports.edit_lecture = function(req, res) {
     Все проверки успешно выполнены, можно обновлять.
     При обновлении запускаем валидаторы для mongoose schema и возвращаем новое значение.
     */
-    return Lecture.findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true}).exec();
+    return Lecture
+    .findOneAndUpdate({_id: req.params.id}, update, {runValidators: true, new: true})
+    .populate({path: 'classroom', model: Classroom})
+    .populate({path: 'school', model: School})
+    .exec();
   })
   .then((data) => {
     return res.json({

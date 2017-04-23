@@ -19,6 +19,38 @@ export class LecturesForm extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.validateForm = this.validateForm.bind(this);
+    this._formatLectureData = this._formatLectureData.bind(this);
+    this._getUpdateData = this._getUpdateData.bind(this);
+  }
+
+  componentWillMount() {
+    if (!!this.props.lecture && !!this.props.lecture.classroom) {
+      let state = this._formatLectureData(this.props.lecture);
+      this.setState(state);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.lecture !== nextProps.lecture && !!nextProps.lecture.classroom) {
+      let state = this._formatLectureData(nextProps.lecture);
+      this.setState(state);
+    }
+  }
+
+  _formatLectureData(lecture) {
+    let classroom = lecture.classroom._id;
+    let schools = [];
+    lecture.school.forEach((school) => {
+      schools.push(school._id);
+    });
+    let date = moment(lecture.date).format('YYYY-MM-DD HH:mm');
+    return {
+      name: lecture.name,
+      classroom: classroom,
+      schools: schools,
+      date: date,
+      teacher: lecture.teacher
+    }
   }
 
   onChange(event) {
@@ -51,7 +83,7 @@ export class LecturesForm extends React.Component {
     event.preventDefault();
     let errors = this.validateForm(this.state);
     if (errors.length > 0) {
-      let message = 'Can not create lecture. Reason:\n';
+      let message = `Can not ${this.props.type == 'cteate' ? 'create' : 'update'} lecture. Reason:\n`;
       errors.forEach((error) => {
         message += error;
       });
@@ -61,7 +93,8 @@ export class LecturesForm extends React.Component {
     if (this.props.type == "create") {
       this.props.actions.createLecture(this.state);
     } else {
-      this.props.actions.updateLecture(this.state, this.props.id);
+      let update = this._getUpdateData(this.state);
+      this.props.actions.updateLecture(update, this.props.id);
     }
     this.setState({
       name: '',
@@ -69,6 +102,36 @@ export class LecturesForm extends React.Component {
       schools: ['default'],
       teacher: ''
     });
+  }
+
+  _getUpdateData(state) {
+    let update = {};
+
+    let initialState = this._formatLectureData(this.props.lecture);
+    for (let key in initialState) {
+      //Если массив, то нужно сверить все ли элементы остались прежними
+      if (Array.isArray(initialState[key]) && Array.isArray(state[key])) {
+        let array = state[key];
+        let initialArray = initialState[key];
+        //Если длина массива изменилась, то записываем его в update
+        if (array.length !== initialArray.length) {
+          update[key] = state[key];
+        } else {
+          //Если длина не изменилась, учитывая что все элементы в массиве уникальны (на это есть серверная проверка)
+          for (let i = 0; i < array.length; i++) {
+            if (initialState[key].indexOf(array[i]) == -1) {
+              update[key] = state[key];
+              break;
+            }
+          }
+        }
+      } else {
+        if (initialState[key] != state[key]) {
+          update[key] = state[key];
+        }
+      }
+    }
+    return update;
   }
 
   validateForm(state) {

@@ -32,7 +32,7 @@ export function loadLecturesSuccess(lectures) {
 export function createLecture(lecture) {
   return function(dispatch) {
     return request
-    .post('v1/lectures')
+    .post('/v1/lectures')
     .send(lecture)
     .then((response) => {
       return response.body;
@@ -55,5 +55,35 @@ export function createLecturesSuccess(lecture) {
   return {
     type: types.CREATE_LECTURE_SUCCESS,
     lecture: lecture
+  };
+}
+
+export function updateLecture(update, id) {
+  return function(dispatch) {
+    return request
+    .put(`/v1/lectures/${id}`)
+    .send(update)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(updateLecturesSuccess(data.message, id));
+      } else {
+        throw new Error(`Can not update lecture. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function updateLecturesSuccess(lecture, lectureId) {
+  return {
+    type: types.UPDATE_LECTURE_SUCCESS,
+    lecture: lecture,
+    lectureId: lectureId
   };
 }
