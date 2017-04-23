@@ -38,10 +38,24 @@ export function createLecture(lecture) {
       return response.body;
     })
     .then((data) => {
+      /*
+      Для страницы детализации лекции нужные данные о школе и об аудитории. Эти данные не возвращаются в ответе от сервера.
+      Т.к. ответ от сервера - просто результат сохранения объекта в БД.
+      Поэтому после получения успешного ответа о создании лекции, запросим её данные (с учетом популяции школы и аудитории).
+      */
       if (data.success) {
-        dispatch(createLectureSuccess(data.message));
+        return request
+        .get(`/v1/lectures/${data.message._id}`)
+        .then((response) => {
+          return response.body;
+        });
       } else {
         throw new Error(`Can not create new lecture. Reason: ${data.error.message}`);
+      }
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(createLectureSuccess(data.data));
       }
     })
     .catch((error) => {
