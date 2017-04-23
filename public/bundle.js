@@ -7184,6 +7184,8 @@ var UPDATE_LECTURE_SUCCESS = exports.UPDATE_LECTURE_SUCCESS = 'UPDATE_LECTURE_SU
 
 var DELETE_LECTURE_SUCCESS = exports.DELETE_LECTURE_SUCCESS = 'DELETE_LECTURE_SUCCESS';
 
+var UPDATE_SCHOOL_SUCCESS = exports.UPDATE_SCHOOL_SUCCESS = 'UPDATE_SCHOOL_SUCCESS';
+
 /***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -13285,6 +13287,8 @@ exports.loadSchools = loadSchools;
 exports.loadSchoolsSuccess = loadSchoolsSuccess;
 exports.loadLecturesForSchool = loadLecturesForSchool;
 exports.loadLecturesForSchoolSuccess = loadLecturesForSchoolSuccess;
+exports.updateSchool = updateSchool;
+exports.updateSchoolSuccess = updateSchoolSuccess;
 
 var _superagent = __webpack_require__(70);
 
@@ -13346,6 +13350,34 @@ function loadLecturesForSchool(schoolId, fromDate, toDate) {
 function loadLecturesForSchoolSuccess(result) {
   return {
     type: types.LOAD_LECTURES_FOR_SCHOOL_SUCCESS,
+    data: result
+  };
+}
+
+function updateSchool(update, schoolId) {
+  return function (dispatch) {
+    return _superagent2.default.put('/v1/schools/' + schoolId).send(update).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        var result = {
+          schoolId: schoolId,
+          school: data.message
+        };
+        dispatch(updateSchoolSuccess(result));
+      } else {
+        throw new Error('Update school error. Reason: ' + data.error.message);
+      }
+    }).catch(function (error) {
+      alert(error.message);
+      throw new Error(error);
+    });
+  };
+}
+
+function updateSchoolSuccess(result) {
+  return {
+    type: types.UPDATE_SCHOOL_SUCCESS,
     data: result
   };
 }
@@ -13910,14 +13942,14 @@ var SchoolForm = function (_React$Component) {
           { htmlFor: "school-name" },
           "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435"
         ),
-        _react2.default.createElement("input", { id: "school-name", required: true }),
+        _react2.default.createElement("input", { id: "school-name", required: true, name: "name", onChange: this.props.onChange, value: this.props.name }),
         _react2.default.createElement(
           "label",
-          { htmlFor: "school-volume" },
+          { htmlFor: "school-students" },
           "\u0427\u0438\u0441\u043B\u043E \u0443\u0447\u0430\u0449\u0438\u0445\u0441\u044F"
         ),
-        _react2.default.createElement("input", { id: "school-volume", required: true }),
-        _react2.default.createElement("input", { className: "change", type: "submit", value: this.props.type == "create" ? "Создать" : "Изменить" })
+        _react2.default.createElement("input", { id: "school-students", required: true, name: "number_of_students", onChange: this.props.onChange, value: this.props.number_of_students }),
+        _react2.default.createElement("input", { className: "change", type: "submit", value: this.props.type == "create" ? "Создать" : "Изменить", onClick: this.props.onSubmit })
       );
     }
   }]);
@@ -29913,16 +29945,40 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
 
     _this.state = {
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
+      name: '',
+      number_of_students: ''
     };
 
     _this.showLectures = _this.showLectures.bind(_this);
     _this.updateState = _this.updateState.bind(_this);
+    _this.onFormChange = _this.onFormChange.bind(_this);
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
     _this.props.actions.loadLecturesForSchool(_this.props.match.params.id, _this.state.dateFrom, _this.state.dateTo);
     return _this;
   }
 
   _createClass(SchoolPage, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      if (!!this.props.school) {
+        this.setState({
+          name: this.props.school.name,
+          number_of_students: this.props.school.number_of_students
+        });
+      }
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      if (this.props.school !== nextProps.school) {
+        this.setState({
+          name: nextProps.school.name,
+          number_of_students: nextProps.school.number_of_students
+        });
+      }
+    }
+  }, {
     key: 'showLectures',
     value: function showLectures(event) {
       event.preventDefault();
@@ -29937,6 +29993,23 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
       this.setState(_defineProperty({}, name, value));
     }
   }, {
+    key: 'onFormChange',
+    value: function onFormChange(event) {
+      var name = event.target.name;
+      var value = event.target.value;
+
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      this.props.actions.updateSchool({
+        name: this.state.name,
+        students: this.state.number_of_students
+      }, this.props.match.params.id);
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
@@ -29946,7 +30019,12 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
           'section',
           { className: 'info' },
           _react2.default.createElement(_SchoolData2.default, { school: this.props.school }),
-          _react2.default.createElement(_SchoolForm2.default, null),
+          _react2.default.createElement(_SchoolForm2.default, {
+            onChange: this.onFormChange,
+            onSubmit: this.handleSubmit,
+            name: this.state.name,
+            number_of_students: this.state.number_of_students
+          }),
           _react2.default.createElement(
             'div',
             { className: 'school-lectures' },
@@ -29973,7 +30051,7 @@ function mapStateToProps(state, ownProps) {
   var school = {
     name: '',
     _id: null,
-    number_of_students: null,
+    number_of_students: '',
     lectures: []
   };
   var schoolId = ownProps.match.params.id;
@@ -30934,6 +31012,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function schoolReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _initialState2.default.schools;
   var action = arguments[1];
@@ -30950,6 +31030,10 @@ function schoolReducer() {
         }
       });
       return result;
+    case types.UPDATE_SCHOOL_SUCCESS:
+      return [].concat(_toConsumableArray(state.filter(function (school) {
+        return school._id !== action.data.schoolId;
+      })), [Object.assign({}, action.data.school)]);
     default:
       return state;
   }

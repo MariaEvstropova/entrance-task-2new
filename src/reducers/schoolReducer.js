@@ -14,6 +14,10 @@ export default function schoolReducer(state = initialState.schools, action) {
         }
       })
       return result;
+    case types.UPDATE_SCHOOL_SUCCESS:
+      return [...state.filter((school) => {
+        return school._id !== action.data.schoolId
+      }), Object.assign({}, action.data.school)];
     default:
       return state;
   }

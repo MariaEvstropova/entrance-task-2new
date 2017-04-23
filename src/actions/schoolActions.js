@@ -61,3 +61,36 @@ export function loadLecturesForSchoolSuccess(result) {
     data: result
   };
 }
+
+export function updateSchool(update, schoolId) {
+  return function(dispatch) {
+    return request
+    .put(`/v1/schools/${schoolId}`)
+    .send(update)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        let result = {
+          schoolId: schoolId,
+          school: data.message
+        };
+        dispatch(updateSchoolSuccess(result));
+      } else {
+        throw new Error(`Update school error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function updateSchoolSuccess(result) {
+  return {
+    type: types.UPDATE_SCHOOL_SUCCESS,
+    data: result
+  };
+}

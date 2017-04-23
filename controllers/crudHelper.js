@@ -69,8 +69,8 @@ module.exports.checkSpaceEnough = function(classroomId, schoolsId, extraParams) 
   let testStudent;
   let testSchoolId;
   if (extraParams) {
-    testVolume = extraParams.testVolume;
-    testStudent = extraParams.testStudent;
+    testVolume = parseInt(extraParams.testVolume, 10);
+    testStudent = parseInt(extraParams.testStudent, 10);
     testSchoolId = extraParams.schoolId;
   }
 
