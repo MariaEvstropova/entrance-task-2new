@@ -13902,6 +13902,7 @@ exports.default = LecturesTable;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.SchoolForm = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -13909,7 +13910,19 @@ var _react = __webpack_require__(4);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _redux = __webpack_require__(21);
+
+var _reactRedux = __webpack_require__(23);
+
+var _schoolActions = __webpack_require__(73);
+
+var schoolActions = _interopRequireWildcard(_schoolActions);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -13917,39 +13930,119 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var SchoolForm = function (_React$Component) {
+var SchoolForm = exports.SchoolForm = function (_React$Component) {
   _inherits(SchoolForm, _React$Component);
 
-  function SchoolForm() {
+  function SchoolForm(props) {
     _classCallCheck(this, SchoolForm);
 
-    return _possibleConstructorReturn(this, (SchoolForm.__proto__ || Object.getPrototypeOf(SchoolForm)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (SchoolForm.__proto__ || Object.getPrototypeOf(SchoolForm)).call(this, props));
+
+    _this.state = {
+      name: '',
+      number_of_students: ''
+    };
+
+    _this.onFormChange = _this.onFormChange.bind(_this);
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this._validateForm = _this._validateForm.bind(_this);
+    _this._getUpdateData = _this._getUpdateData.bind(_this);
+    return _this;
   }
 
   _createClass(SchoolForm, [{
-    key: "render",
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      if (!!this.props.name && !!this.props.number_of_students && this.props.type !== 'create') {
+        this.setState({
+          name: this.props.name,
+          number_of_students: this.props.number_of_students
+        });
+      }
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      if (this.props !== nextProps && this.props.type !== 'create') {
+        this.setState({
+          name: nextProps.name,
+          number_of_students: nextProps.number_of_students
+        });
+      }
+    }
+  }, {
+    key: 'onFormChange',
+    value: function onFormChange(event) {
+      var name = event.target.name;
+      var value = event.target.value;
+
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
+    key: '_validateForm',
+    value: function _validateForm(state) {
+      var errors = [];
+      if (!state.name) {
+        errors.push('No name provided\n');
+      }
+      if (!state.number_of_students) {
+        errors.push('No number of students provided\n');
+      }
+
+      return errors;
+    }
+  }, {
+    key: '_getUpdateData',
+    value: function _getUpdateData(state) {
+      var update = {};
+      if (state.name !== this.props.name) {
+        update.name = state.name;
+      }
+      if (state.number_of_students !== this.props.number_of_students) {
+        update.students = state.number_of_students;
+      }
+      return update;
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      var errors = this._validateForm(this.state);
+      if (errors.length > 0) {
+        var message = 'Can not ' + (this.props.type == 'cteate' ? 'create' : 'update') + ' school. Reason:\n';
+        errors.forEach(function (error) {
+          message += error;
+        });
+        alert(message);
+        return;
+      }
+      var update = this._getUpdateData(this.state);
+      this.props.actions.updateSchool(update, this.props.id);
+    }
+  }, {
+    key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        "form",
-        { id: "school-form", className: "school-form" },
+        'form',
+        { id: 'school-form', className: 'school-form' },
         _react2.default.createElement(
-          "h1",
+          'h1',
           null,
           this.props.type == "create" ? "Создать новую школу" : "Изменить школу"
         ),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "school-name" },
-          "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435"
+          'label',
+          { htmlFor: 'school-name' },
+          '\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435'
         ),
-        _react2.default.createElement("input", { id: "school-name", required: true, name: "name", onChange: this.props.onChange, value: this.props.name }),
+        _react2.default.createElement('input', { id: 'school-name', required: true, name: 'name', onChange: this.onFormChange, value: this.state.name }),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "school-students" },
-          "\u0427\u0438\u0441\u043B\u043E \u0443\u0447\u0430\u0449\u0438\u0445\u0441\u044F"
+          'label',
+          { htmlFor: 'school-students' },
+          '\u0427\u0438\u0441\u043B\u043E \u0443\u0447\u0430\u0449\u0438\u0445\u0441\u044F'
         ),
-        _react2.default.createElement("input", { id: "school-students", required: true, name: "number_of_students", onChange: this.props.onChange, value: this.props.number_of_students }),
-        _react2.default.createElement("input", { className: "change", type: "submit", value: this.props.type == "create" ? "Создать" : "Изменить", onClick: this.props.onSubmit })
+        _react2.default.createElement('input', { id: 'school-students', required: true, name: 'number_of_students', onChange: this.onFormChange, value: this.state.number_of_students }),
+        _react2.default.createElement('input', { className: 'change', type: 'submit', value: this.props.type == "create" ? "Создать" : "Изменить", onClick: this.handleSubmit })
       );
     }
   }]);
@@ -13957,7 +14050,13 @@ var SchoolForm = function (_React$Component) {
   return SchoolForm;
 }(_react2.default.Component);
 
-exports.default = SchoolForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: (0, _redux.bindActionCreators)(schoolActions, dispatch)
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(null, mapDispatchToProps)(SchoolForm);
 
 /***/ }),
 /* 78 */
@@ -29945,40 +30044,16 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
 
     _this.state = {
       dateFrom: '',
-      dateTo: '',
-      name: '',
-      number_of_students: ''
+      dateTo: ''
     };
 
     _this.showLectures = _this.showLectures.bind(_this);
     _this.updateState = _this.updateState.bind(_this);
-    _this.onFormChange = _this.onFormChange.bind(_this);
-    _this.handleSubmit = _this.handleSubmit.bind(_this);
     _this.props.actions.loadLecturesForSchool(_this.props.match.params.id, _this.state.dateFrom, _this.state.dateTo);
     return _this;
   }
 
   _createClass(SchoolPage, [{
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      if (!!this.props.school) {
-        this.setState({
-          name: this.props.school.name,
-          number_of_students: this.props.school.number_of_students
-        });
-      }
-    }
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      if (this.props.school !== nextProps.school) {
-        this.setState({
-          name: nextProps.school.name,
-          number_of_students: nextProps.school.number_of_students
-        });
-      }
-    }
-  }, {
     key: 'showLectures',
     value: function showLectures(event) {
       event.preventDefault();
@@ -29993,23 +30068,6 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
       this.setState(_defineProperty({}, name, value));
     }
   }, {
-    key: 'onFormChange',
-    value: function onFormChange(event) {
-      var name = event.target.name;
-      var value = event.target.value;
-
-      this.setState(_defineProperty({}, name, value));
-    }
-  }, {
-    key: 'handleSubmit',
-    value: function handleSubmit(event) {
-      event.preventDefault();
-      this.props.actions.updateSchool({
-        name: this.state.name,
-        students: this.state.number_of_students
-      }, this.props.match.params.id);
-    }
-  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
@@ -30020,10 +30078,9 @@ var SchoolPage = exports.SchoolPage = function (_React$Component) {
           { className: 'info' },
           _react2.default.createElement(_SchoolData2.default, { school: this.props.school }),
           _react2.default.createElement(_SchoolForm2.default, {
-            onChange: this.onFormChange,
-            onSubmit: this.handleSubmit,
-            name: this.state.name,
-            number_of_students: this.state.number_of_students
+            id: this.props.match.params.id,
+            name: this.props.school.name,
+            number_of_students: this.props.school.number_of_students
           }),
           _react2.default.createElement(
             'div',
@@ -30513,7 +30570,11 @@ var SchoolssSection = function (_React$Component) {
             );
           })
         ),
-        _react2.default.createElement(_SchoolForm2.default, { type: 'create' })
+        _react2.default.createElement(_SchoolForm2.default, {
+          type: 'create',
+          onChange: this.props.onChange,
+          onSubmit: this.props.onSubmit
+        })
       );
     }
   }]);

@@ -72,7 +72,9 @@ module.exports.edit_school = function(req, res) {
   if (!update.name && !update.number_of_students) {
     return res.json({
       success: false,
-      error: `Your request doens't contain params for update. Params available for update: name, students.`
+      error: {
+        message: `Your request doens't contain params for update. Params available for update: name, students.`
+      }
     });
   }
   return checkLecturesForSchool(req.params.id)

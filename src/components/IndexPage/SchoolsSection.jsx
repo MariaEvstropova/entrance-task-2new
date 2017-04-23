@@ -16,7 +16,11 @@ export default class SchoolssSection extends React.Component {
             )
           })}
         </ul>
-        <SchoolForm type="create" />
+        <SchoolForm
+          type="create"
+          onChange={this.props.onChange}
+          onSubmit={this.props.onSubmit}
+        />
       </section>
     );
   }

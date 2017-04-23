@@ -13,34 +13,12 @@ export class SchoolPage extends React.Component {
 
     this.state = {
       dateFrom: '',
-      dateTo: '',
-      name: '',
-      number_of_students: ''
+      dateTo: ''
     };
 
     this.showLectures = this.showLectures.bind(this);
     this.updateState = this.updateState.bind(this);
-    this.onFormChange = this.onFormChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.props.actions.loadLecturesForSchool(this.props.match.params.id, this.state.dateFrom, this.state.dateTo);
-  }
-
-  componentWillMount() {
-    if (!!this.props.school) {
-      this.setState({
-        name: this.props.school.name,
-        number_of_students: this.props.school.number_of_students
-      });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.school !== nextProps.school) {
-      this.setState({
-        name: nextProps.school.name,
-        number_of_students: nextProps.school.number_of_students
-      });
-    }
   }
 
   showLectures(event) {
@@ -57,33 +35,15 @@ export class SchoolPage extends React.Component {
     });
   }
 
-  onFormChange(event) {
-    let name = event.target.name;
-    let value = event.target.value;
-
-    this.setState({
-      [name]: value
-    });
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-    this.props.actions.updateSchool({
-      name: this.state.name,
-      students: this.state.number_of_students
-    }, this.props.match.params.id)
-  }
-
   render() {
     return (
       <div className="main-content">
         <section className="info">
           <SchoolData school={this.props.school} />
           <SchoolForm
-            onChange={this.onFormChange}
-            onSubmit={this.handleSubmit}
-            name={this.state.name}
-            number_of_students={this.state.number_of_students}
+            id={this.props.match.params.id}
+            name={this.props.school.name}
+            number_of_students={this.props.school.number_of_students}
           />
           <div className="school-lectures">
             <h1 className="title">Лекции для школы</h1>
