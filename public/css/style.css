@@ -22,6 +22,7 @@ a:hover {
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 50px;
 }
 .content-sections {
   display: flex;
@@ -325,5 +326,8 @@ section form input[type="submit"]:hover {
   .school-lectures input[type="date"],
   .classroom-lectures input[type="date"] {
     margin-right: 0;
+  }
+  .main-content {
+    padding: 2px;
   }
 }
