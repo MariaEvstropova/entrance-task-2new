@@ -12,10 +12,11 @@ export function loadClassrooms() {
       if (data.success) {
         dispatch(loadClassroomsSuccess(data.data));
       } else {
-        throw new Error('Get classrooms from db error');
+        throw new Error(`Get classrooms from db error. Reason: ${data.error.message}`);
       }
     })
     .catch((error) => {
+      alert(error.message);
       throw new Error(error);
     });
   };
@@ -44,10 +45,11 @@ export function loadLecturesForClassroom(classroomId, fromDate, toDate) {
         };
         dispatch(loadLecturesForClassroomSuccess(result));
       } else {
-        throw new Error('Get lectures for classroom from db error');
+        throw new Error(`Get lectures for classroom from db error. Reason: ${data.error.message}`);
       }
     })
     .catch((error) => {
+      alert(error.message);
       throw new Error(error);
     });
   }

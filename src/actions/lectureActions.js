@@ -12,10 +12,11 @@ export function loadLectures() {
       if (data.success) {
         dispatch(loadLecturesSuccess(data.data));
       } else {
-        throw new Error('Get lectures from db error');
+        throw new Error(`Get lectures from db error. Reason: ${data.error.message}`);
       }
     })
     .catch((error) => {
+      alert(error.message);
       throw new Error(error);
     });
   };
@@ -25,5 +26,34 @@ export function loadLecturesSuccess(lectures) {
   return {
     type: types.LOAD_LECTURES_SUCCESS,
     lectures: lectures
+  };
+}
+
+export function createLecture(lecture) {
+  return function(dispatch) {
+    return request
+    .post('v1/lectures')
+    .send(lecture)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(createLecturesSuccess(data.message));
+      } else {
+        throw new Error(`Can not create new lecture. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function createLecturesSuccess(lecture) {
+  return {
+    type: types.CREATE_LECTURE_SUCCESS,
+    lecture: lecture
   };
 }

@@ -10,6 +10,7 @@ export class LecturePage extends React.Component {
         <section className="info">
           <LectureData lecture={this.props.lecture} />
           <LectureForm
+            id={this.props.match.params.id}
             classrooms={this.props.classrooms}
             schools={this.props.schools}
           />
