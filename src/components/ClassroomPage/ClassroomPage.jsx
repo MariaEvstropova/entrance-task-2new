@@ -18,6 +18,7 @@ export class ClassroomPage extends React.Component {
 
     this.showLectures = this.showLectures.bind(this);
     this.updateState = this.updateState.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
     this.props.actions.loadLecturesForClassroom(this.props.match.params.id, this.state.dateFrom, this.state.dateTo);
   }
 
@@ -35,12 +36,28 @@ export class ClassroomPage extends React.Component {
     });
   }
 
+  handleDelete(event) {
+    event.preventDefault();
+    this.props.actions.deleteClassroom(this.props.match.params.id);
+  }
+
   render() {
+    if (Object.keys(this.props.classroom).length === 0) {
+      return <p className="info-message">Извините, такой аудитории нет</p>;
+    }
     return (
       <div className="main-content">
         <section className="info">
-          <ClassroomData classroom={this.props.classroom} />
-          <ClassroomForm />
+          <ClassroomData
+            classroom={this.props.classroom}
+            onClick={this.handleDelete}
+          />
+          <ClassroomForm
+            id={this.props.match.params.id}
+            name={this.props.classroom.name}
+            volume={this.props.classroom.volume}
+            location={this.props.classroom.location}
+          />
           <div className="classroom-lectures">
             <h1 className="title">Лекции в аудитории</h1>
             <DateForm

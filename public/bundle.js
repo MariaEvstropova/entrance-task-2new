@@ -7183,6 +7183,10 @@ var CREATE_SCHOOL_SUCCESS = exports.CREATE_SCHOOL_SUCCESS = 'CREATE_SCHOOL_SUCCE
 var UPDATE_SCHOOL_SUCCESS = exports.UPDATE_SCHOOL_SUCCESS = 'UPDATE_SCHOOL_SUCCESS';
 var DELETE_SCHOOL_SUCCESS = exports.DELETE_SCHOOL_SUCCESS = 'DELETE_SCHOOL_SUCCESS';
 
+var CREATE_CLASSROOM_SUCCESS = exports.CREATE_CLASSROOM_SUCCESS = 'CREATE_CLASSROOM_SUCCESS';
+var UPDATE_CLASSROOM_SUCCESS = exports.UPDATE_CLASSROOM_SUCCESS = 'UPDATE_CLASSROOM_SUCCESS';
+var DELETE_CLASSROOM_SUCCESS = exports.DELETE_CLASSROOM_SUCCESS = 'DELETE_CLASSROOM_SUCCESS';
+
 /***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -9815,6 +9819,7 @@ function deleteSchoolSuccess(id) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.ClassroomForm = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -9822,7 +9827,19 @@ var _react = __webpack_require__(4);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _redux = __webpack_require__(18);
+
+var _reactRedux = __webpack_require__(19);
+
+var _classroomActions = __webpack_require__(73);
+
+var classroomActions = _interopRequireWildcard(_classroomActions);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9830,45 +9847,139 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ClassroomForm = function (_React$Component) {
+var ClassroomForm = exports.ClassroomForm = function (_React$Component) {
   _inherits(ClassroomForm, _React$Component);
 
-  function ClassroomForm() {
+  function ClassroomForm(props) {
     _classCallCheck(this, ClassroomForm);
 
-    return _possibleConstructorReturn(this, (ClassroomForm.__proto__ || Object.getPrototypeOf(ClassroomForm)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (ClassroomForm.__proto__ || Object.getPrototypeOf(ClassroomForm)).call(this, props));
+
+    _this.state = {
+      name: '',
+      volume: '',
+      location: ''
+    };
+
+    _this.onFormChange = _this.onFormChange.bind(_this);
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this._validateForm = _this._validateForm.bind(_this);
+    _this._getUpdateData = _this._getUpdateData.bind(_this);
+    return _this;
   }
 
   _createClass(ClassroomForm, [{
-    key: "render",
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      if (!!this.props.name && !!this.props.volume && !!this.props.location && this.props.type !== 'create') {
+        this.setState({
+          name: this.props.name,
+          volume: this.props.volume,
+          location: this.props.location
+        });
+      }
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      if (this.props !== nextProps && this.props.type !== 'create') {
+        this.setState({
+          name: nextProps.name,
+          volume: nextProps.volume,
+          location: nextProps.location
+        });
+      }
+    }
+  }, {
+    key: 'onFormChange',
+    value: function onFormChange(event) {
+      var name = event.target.name;
+      var value = event.target.value;
+
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
+    key: '_validateForm',
+    value: function _validateForm(state) {
+      var errors = [];
+      if (!state.name) {
+        errors.push('No name provided\n');
+      }
+      if (!state.volume) {
+        errors.push('No volume provided\n');
+      }
+      if (!state.location) {
+        errors.push('No location provided\n');
+      }
+
+      return errors;
+    }
+  }, {
+    key: '_getUpdateData',
+    value: function _getUpdateData(state) {
+      var update = {};
+      for (var key in this.props) {
+        if (this.props[key] != this.state[key]) {
+          update[key] = this.state[key];
+        }
+      }
+      return update;
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      var errors = this._validateForm(this.state);
+      if (errors.length > 0) {
+        var message = 'Can not ' + (this.props.type == 'cteate' ? 'create' : 'update') + ' classroom. Reason:\n';
+        errors.forEach(function (error) {
+          message += error;
+        });
+        alert(message);
+        return;
+      }
+      if (this.props.type == 'create') {
+        this.props.actions.createClassroom(this.state);
+      } else {
+        var update = this._getUpdateData(this.state);
+        this.props.actions.updateClassroom(update, this.props.id);
+      }
+      this.setState({
+        name: '',
+        volume: '',
+        location: ''
+      });
+    }
+  }, {
+    key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        "form",
-        { id: "classroom-form", className: "classroom-form" },
+        'form',
+        { id: 'classroom-form', className: 'classroom-form' },
         _react2.default.createElement(
-          "h1",
+          'h1',
           null,
           this.props.type == "create" ? "Создать новую аудиторию" : "Изменить аудиторию"
         ),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "classroom-name" },
-          "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435"
+          'label',
+          { htmlFor: 'classroom-name' },
+          '\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435'
         ),
-        _react2.default.createElement("input", { id: "classroom-name", required: true }),
+        _react2.default.createElement('input', { id: 'classroom-name', required: true, name: 'name', onChange: this.onFormChange, value: this.state.name }),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "classroom-volume" },
-          "\u0412\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C"
+          'label',
+          { htmlFor: 'classroom-volume' },
+          '\u0412\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C'
         ),
-        _react2.default.createElement("input", { id: "classroom-volume", required: true }),
+        _react2.default.createElement('input', { id: 'classroom-volume', required: true, name: 'volume', onChange: this.onFormChange, value: this.state.volume }),
         _react2.default.createElement(
-          "label",
-          { htmlFor: "classroom-location" },
-          "\u041C\u0435\u0441\u0442\u043E\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u0435"
+          'label',
+          { htmlFor: 'classroom-location' },
+          '\u041C\u0435\u0441\u0442\u043E\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u0435'
         ),
-        _react2.default.createElement("input", { id: "classroom-location", required: true }),
-        _react2.default.createElement("input", { className: "change", type: "submit", value: this.props.type == "create" ? "Создать" : "Изменить" })
+        _react2.default.createElement('input', { id: 'classroom-location', required: true, name: 'location', onChange: this.onFormChange, value: this.state.location }),
+        _react2.default.createElement('input', { className: 'change', type: 'submit', value: this.props.type == "create" ? "Создать" : "Изменить", onClick: this.handleSubmit })
       );
     }
   }]);
@@ -9876,7 +9987,13 @@ var ClassroomForm = function (_React$Component) {
   return ClassroomForm;
 }(_react2.default.Component);
 
-exports.default = ClassroomForm;
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: (0, _redux.bindActionCreators)(classroomActions, dispatch)
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(null, mapDispatchToProps)(ClassroomForm);
 
 /***/ }),
 /* 46 */
@@ -13366,6 +13483,12 @@ exports.loadClassrooms = loadClassrooms;
 exports.loadClassroomsSuccess = loadClassroomsSuccess;
 exports.loadLecturesForClassroom = loadLecturesForClassroom;
 exports.loadLecturesForClassroomSuccess = loadLecturesForClassroomSuccess;
+exports.updateClassroom = updateClassroom;
+exports.updateClassroomSuccess = updateClassroomSuccess;
+exports.createClassroom = createClassroom;
+exports.createClassroomSuccess = createClassroomSuccess;
+exports.deleteClassroom = deleteClassroom;
+exports.deleteClassroomSuccess = deleteClassroomSuccess;
 
 var _superagent = __webpack_require__(71);
 
@@ -13428,6 +13551,82 @@ function loadLecturesForClassroomSuccess(result) {
   return {
     type: types.LOAD_LECTURES_FOR_CLASSROOM_SUCCESS,
     data: result
+  };
+}
+
+function updateClassroom(update, classroomId) {
+  return function (dispatch) {
+    return _superagent2.default.put('/v1/classrooms/' + classroomId).send(update).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        var result = {
+          classroomId: classroomId,
+          classroom: data.message
+        };
+        dispatch(updateClassroomSuccess(result));
+      } else {
+        throw new Error('Update classroom error. Reason: ' + data.error.message);
+      }
+    }).catch(function (error) {
+      alert(error.message);
+      throw new Error(error);
+    });
+  };
+}
+
+function updateClassroomSuccess(result) {
+  return {
+    type: types.UPDATE_CLASSROOM_SUCCESS,
+    data: result
+  };
+}
+
+function createClassroom(classroom) {
+  return function (dispatch) {
+    return _superagent2.default.post('/v1/classrooms/').send(classroom).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        dispatch(createClassroomSuccess(data.message));
+      } else {
+        throw new Error('Create classroom error. Reason: ' + data.error.message);
+      }
+    }).catch(function (error) {
+      alert(error.message);
+      throw new Error(error);
+    });
+  };
+}
+
+function createClassroomSuccess(result) {
+  return {
+    type: types.CREATE_CLASSROOM_SUCCESS,
+    classroom: result
+  };
+}
+
+function deleteClassroom(id) {
+  return function (dispatch) {
+    return _superagent2.default.delete('/v1/classrooms/' + id).then(function (response) {
+      return response.body;
+    }).then(function (data) {
+      if (data.success) {
+        dispatch(deleteClassroomSuccess(id));
+      } else {
+        throw new Error('Delete classroom error. Reason: ' + data.error.message);
+      }
+    }).catch(function (error) {
+      alert(error.message);
+      throw new Error(error);
+    });
+  };
+}
+
+function deleteClassroomSuccess(id) {
+  return {
+    type: types.DELETE_CLASSROOM_SUCCESS,
+    classroomId: id
   };
 }
 
@@ -29760,6 +29959,7 @@ var ClassroomPage = exports.ClassroomPage = function (_React$Component) {
 
     _this.showLectures = _this.showLectures.bind(_this);
     _this.updateState = _this.updateState.bind(_this);
+    _this.handleDelete = _this.handleDelete.bind(_this);
     _this.props.actions.loadLecturesForClassroom(_this.props.match.params.id, _this.state.dateFrom, _this.state.dateTo);
     return _this;
   }
@@ -29779,16 +29979,37 @@ var ClassroomPage = exports.ClassroomPage = function (_React$Component) {
       this.setState(_defineProperty({}, name, value));
     }
   }, {
+    key: 'handleDelete',
+    value: function handleDelete(event) {
+      event.preventDefault();
+      this.props.actions.deleteClassroom(this.props.match.params.id);
+    }
+  }, {
     key: 'render',
     value: function render() {
+      if (Object.keys(this.props.classroom).length === 0) {
+        return _react2.default.createElement(
+          'p',
+          { className: 'info-message' },
+          '\u0418\u0437\u0432\u0438\u043D\u0438\u0442\u0435, \u0442\u0430\u043A\u043E\u0439 \u0430\u0443\u0434\u0438\u0442\u043E\u0440\u0438\u0438 \u043D\u0435\u0442'
+        );
+      }
       return _react2.default.createElement(
         'div',
         { className: 'main-content' },
         _react2.default.createElement(
           'section',
           { className: 'info' },
-          _react2.default.createElement(_ClassroomData2.default, { classroom: this.props.classroom }),
-          _react2.default.createElement(_ClassroomForm2.default, null),
+          _react2.default.createElement(_ClassroomData2.default, {
+            classroom: this.props.classroom,
+            onClick: this.handleDelete
+          }),
+          _react2.default.createElement(_ClassroomForm2.default, {
+            id: this.props.match.params.id,
+            name: this.props.classroom.name,
+            volume: this.props.classroom.volume,
+            location: this.props.classroom.location
+          }),
           _react2.default.createElement(
             'div',
             { className: 'classroom-lectures' },
@@ -30413,7 +30634,7 @@ var ClassroomData = function (_React$Component) {
         ),
         _react2.default.createElement(
           "a",
-          { href: "", className: "delete" },
+          { href: "", className: "delete", onClick: this.props.onClick },
           "\u0423\u0434\u0430\u043B\u0438\u0442\u044C"
         )
       );
@@ -31022,6 +31243,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function classroomReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _initialState2.default.classrooms;
   var action = arguments[1];
@@ -31038,6 +31261,16 @@ function classroomReducer() {
         }
       });
       return result;
+    case types.CREATE_CLASSROOM_SUCCESS:
+      return [].concat(_toConsumableArray(state), [Object.assign({}, action.classroom)]);
+    case types.UPDATE_CLASSROOM_SUCCESS:
+      return [].concat(_toConsumableArray(state.filter(function (classroom) {
+        return classroom._id !== action.data.classroomId;
+      })), [Object.assign({}, action.data.classroom)]);
+    case types.DELETE_CLASSROOM_SUCCESS:
+      return [].concat(_toConsumableArray(state.filter(function (classroom) {
+        return classroom._id !== action.classroomId;
+      })));
     default:
       return state;
   }

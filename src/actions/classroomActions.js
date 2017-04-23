@@ -61,3 +61,93 @@ export function loadLecturesForClassroomSuccess(result) {
     data: result
   };
 }
+
+export function updateClassroom(update, classroomId) {
+  return function(dispatch) {
+    return request
+    .put(`/v1/classrooms/${classroomId}`)
+    .send(update)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        let result = {
+          classroomId: classroomId,
+          classroom: data.message
+        };
+        dispatch(updateClassroomSuccess(result));
+      } else {
+        throw new Error(`Update classroom error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function updateClassroomSuccess(result) {
+  return {
+    type: types.UPDATE_CLASSROOM_SUCCESS,
+    data: result
+  };
+}
+
+export function createClassroom(classroom) {
+  return function(dispatch) {
+    return request
+    .post('/v1/classrooms/')
+    .send(classroom)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(createClassroomSuccess(data.message));
+      } else {
+        throw new Error(`Create classroom error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function createClassroomSuccess(result) {
+  return {
+    type: types.CREATE_CLASSROOM_SUCCESS,
+    classroom: result
+  };
+}
+
+export function deleteClassroom(id) {
+  return function(dispatch) {
+    return request
+    .delete(`/v1/classrooms/${id}`)
+    .then((response) => {
+      return response.body;
+    })
+    .then((data) => {
+      if (data.success) {
+        dispatch(deleteClassroomSuccess(id));
+      } else {
+        throw new Error(`Delete classroom error. Reason: ${data.error.message}`);
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+      throw new Error(error);
+    });
+  }
+}
+
+export function deleteClassroomSuccess(id) {
+  return {
+    type: types.DELETE_CLASSROOM_SUCCESS,
+    classroomId: id
+  };
+}
